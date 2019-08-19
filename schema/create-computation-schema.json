@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "create-computation-content-schema.json",
+    "title": "Create Computation",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "template": {
+            "$ref": "computation-template-schema.json"
+        },
+        "task": {
+            "$ref": "computation-task-schema.json"
+        }
+    },
+    "required": [
+        "template",
+        "task"
+    ]
+}

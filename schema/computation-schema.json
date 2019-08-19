@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "computation-schema.json",
+    "title": "Computation",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "id of the computation"
+        },
+        "created": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date time the computation was created. This is not the date time the computation started on the backend."
+        },
+        "expires": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date time the computation expires and is deleted."
+        },
+        "status": {
+            "type": "string",
+            "description": "the current status of the computation"
+        }
+    }
+}
