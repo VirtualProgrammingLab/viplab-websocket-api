@@ -1,0 +1,11 @@
+<server description="ViPLab Websocket API Server">
+	<featureManager>
+		<feature>websocket-1.1</feature>
+		<feature>jsonb-1.0</feature>
+		<feature>cdi-2.0</feature>
+		<feature>mpConfig-1.3</feature>
+	</featureManager>
+	<httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
+        id="defaultHttpEndpoint" />
+	<logging traceSpecification="de.uni_stuttgart.*=all" />
+</server>
