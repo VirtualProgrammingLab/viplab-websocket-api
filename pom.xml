@@ -91,7 +91,7 @@
 						<default.http.port>80</default.http.port>
 						<default.https.port>443</default.https.port>
 						<app.context.root>/</app.context.root>
-						<viplab.jwt.jwks.file>public_key.pem</viplab.jwt.jwks.file>
+						<viplab.jwt.jwks.file>jwks.json</viplab.jwt.jwks.file>
 					</bootstrapProperties>
 				</configuration>
 				<executions>
