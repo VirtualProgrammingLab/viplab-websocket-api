@@ -2,9 +2,11 @@ package de.uni_stuttgart.tik.viplab.websocket_api;
 
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -30,16 +32,22 @@ public class ComputationWebSocket {
 	private Session session;
 	private DecodedJWT jwt = null;
 
-	private Jsonb jsonb = JsonbBuilder.create();
+	private Jsonb jsonb;
 
 	@Inject
 	private AuthenticationService authenticationService;
-	
+
 	@Inject
 	private ECSComputationService computationService;
 
 	@Inject
 	private Logger logger;
+
+	@PostConstruct
+	private void setup() {
+		JsonbConfig jsonbConfig = new JsonbConfig();
+		jsonb = JsonbBuilder.create(jsonbConfig);
+	}
 
 	@OnOpen
 	public void onOpen(Session session) throws IOException {
@@ -66,9 +74,11 @@ public class ComputationWebSocket {
 		try {
 			this.session.getBasicRemote().sendObject(messageEnvelop);
 		} catch (EncodeException e) {
-			throw new IllegalArgumentException("The message of type " + messageEnvelop.type + " can't be encoded.", e);
+			throw new IllegalArgumentException("The message of type "
+					+ messageEnvelop.type + " can't be encoded.", e);
 		} catch (IOException e) {
-			throw new IllegalStateException("The message of type " + messageEnvelop.type + " can't be send.", e);
+			throw new IllegalStateException("The message of type "
+					+ messageEnvelop.type + " can't be send.", e);
 		}
 	}
 
@@ -78,7 +88,8 @@ public class ComputationWebSocket {
 
 	@OnMessage
 	public void onMessage(Message message) throws IOException {
-		this.logger.debug("got Message of type {} and content {}", message.type, message.content);
+		this.logger.debug("got Message of type {} and content {}", message.type,
+				message.content);
 
 		switch (message.type) {
 		case AuthenticateMessage.MESSAGE_TYPE:
@@ -87,10 +98,12 @@ public class ComputationWebSocket {
 			this.onAuthentication(authenticateMessage);
 			break;
 		case CreateComputationMessage.MESSAGE_TYPE:
-			this.onCreateComputation(fromJsonObject(message.content, CreateComputationMessage.class));
+			this.onCreateComputation(fromJsonObject(message.content,
+					CreateComputationMessage.class));
 			break;
 		default:
-			throw new IllegalArgumentException("Unkown message type: " + message.type);
+			throw new IllegalArgumentException(
+					"Unkown message type: " + message.type);
 		}
 	}
 
@@ -99,7 +112,7 @@ public class ComputationWebSocket {
 			throw new IllegalStateException("JWT is already set.");
 		}
 		this.jwt = this.authenticationService.authenticate(message.jwt);
-		this.logger.debug("set JWT: {}", this.jwt);
+		this.logger.debug("set JWT: {}", this.jwt.getClaims());
 	}
 
 	private void onCreateComputation(CreateComputationMessage message) {
