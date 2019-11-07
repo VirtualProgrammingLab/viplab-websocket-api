@@ -155,6 +155,7 @@
 								<viplab.jwt.jwks.kid.test>testkeyId</viplab.jwt.jwks.kid.test>
 								<war.name>${warContext}</war.name>
 							</systemPropertyVariables>
+							<trimStackTrace>false</trimStackTrace>
 						</configuration>
 					</execution>
 				</executions>
