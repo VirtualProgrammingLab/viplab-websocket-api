@@ -1,6 +1,8 @@
 package de.uni_stuttgart.tik.viplab.websocket_api;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -20,6 +22,7 @@ import org.slf4j.Logger;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.AuthenticateMessage;
+import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.CreateComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.Message;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageDecoder;
@@ -117,6 +120,12 @@ public class ComputationWebSocket {
 
 	private void onCreateComputation(CreateComputationMessage message) {
 		computationService.createComputation();
+		ComputationMessage computationMessage = new ComputationMessage();
+		computationMessage.created = ZonedDateTime.now();
+		computationMessage.expires = ZonedDateTime.now().plusHours(3);
+		computationMessage.id = UUID.randomUUID().toString();
+		computationMessage.status = "created";
+		this.send(computationMessage);
 	}
 
 	@OnClose

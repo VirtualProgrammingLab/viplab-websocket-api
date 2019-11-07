@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -17,10 +16,10 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -30,51 +29,52 @@ import uk.co.datumedge.hamcrest.json.SameJSONAs;
 @ExtendWith(MockitoExtension.class)
 class ComputationWebSocketIT {
 
-	private static String websocketPort = System
-			.getProperty("liberty.http.port");
-	private static String jwksPath = System
-			.getProperty("viplab.jwt.jwks.file.private.test");
+	private static String websocketPort = System.getProperty("liberty.http.port");
+	private static String jwksPath = System.getProperty("viplab.jwt.jwks.file.private.test");
 	private static String kid = System.getProperty("viplab.jwt.jwks.kid.test");
 
 	@Mock
-	Function<JSONObject, String> massageHandler;
+	MessageHandler massageHandler;
 	private static Algorithm algorithm;
 
 	@BeforeAll
 	public static void setup() throws MalformedURLException {
-		algorithm = JWTUtil.getAlgorithm(Paths.get(jwksPath).toUri().toURL(),
-				kid);
+		algorithm = JWTUtil.getAlgorithm(Paths.get(jwksPath).toUri().toURL(), kid);
 	}
 
 	@Test
 	void test() throws Exception {
-		Mockito.when(
-				massageHandler.apply(ArgumentMatchers.any(JSONObject.class)))
-				.thenReturn("");
+		// Mockito.when(massageHandler.apply(ArgumentMatchers.any(JSONObject.class))).thenReturn("");
 
-		TestWebSocket websocket = new TestWebSocket(new URI("ws://localhost:"
-				+ websocketPort + "/websocket-api/computations"),
-				massageHandler);
-		assertThat("WebSocket connection",
-				websocket.connectBlocking(100, TimeUnit.MILLISECONDS));
+		TestWebSocket websocket = new TestWebSocket(
+				new URI("ws://localhost:" + websocketPort + "/websocket-api/computations"), massageHandler);
+		assertThat("WebSocket connection", websocket.connectBlocking(100, TimeUnit.MILLISECONDS));
 		JSONObject authenticateMessage = new JSONObject();
 		authenticateMessage.put("type", "authenticate");
-		String jwt = JWT.create().withIssuer("test").sign(algorithm);
+		String computationTemplate = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate());
+		String computationTemplateHash = JWTUtil.sha256(computationTemplate);
+		System.out.println(computationTemplateHash);
+		String jwt = JWT.create().withIssuer("test")
+				.withClaim("viplab.computation-template.digest", computationTemplateHash).sign(algorithm);
 		authenticateMessage.put("content", jwt);
-		websocket.send(authenticateMessage.toString());
+		websocket.send(authenticateMessage);
+		JSONObject computationTask = TestJSONMessageProvider.getComputationTask();
+		websocket.send(TestJSONMessageProvider.getCreateComputationMessage(computationTemplate, computationTask));
 
-		Mockito.verify(massageHandler, Mockito.timeout(100))
-				.apply((JSONObject) argThat(SameJSONAs.sameJSONAs(
-						"{\"content\":\"world\",\"type\":\"hello\"}")));
+		Mockito.verify(massageHandler, Mockito.timeout(100)).onMessage(
+				(JSONObject) argThat(SameJSONAs.sameJSONObjectAs(new JSONObject()).allowingExtraUnexpectedFields()));
 		websocket.closeBlocking();
+	}
+
+	private interface MessageHandler {
+		public void onMessage(JSONObject json);
 	}
 
 	private class TestWebSocket extends WebSocketClient {
 
-		private Function<JSONObject, String> function;
+		private MessageHandler function;
 
-		public TestWebSocket(URI serverUri,
-				Function<JSONObject, String> function) {
+		public TestWebSocket(URI serverUri, MessageHandler function) {
 			super(serverUri);
 			this.function = function;
 		}
@@ -82,7 +82,7 @@ class ComputationWebSocketIT {
 		@Override
 		public void onMessage(String message) {
 			try {
-				this.send(this.function.apply(new JSONObject(message)));
+				this.function.onMessage(new JSONObject(message));
 			} catch (JSONException e) {
 				fail(e);
 			}
@@ -100,6 +100,10 @@ class ComputationWebSocketIT {
 
 		@Override
 		public void onClose(int code, String reason, boolean remote) {
+		}
+
+		public void send(JSONObject data) {
+			this.send(data.toString());
 		}
 	}
 
