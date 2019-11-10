@@ -2,8 +2,17 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "subscribe-content-schema.json",
     "title": "subscribe",
-    "type": "string",
+    "description": "A Subscription request",
+    "type": "object",
+    "properties": {
+        "topic": {
+            "type": "string",
+            "description": "The topic to which the WebSocket Client wants to subscribes to"
+        }
+    },
     "examples": [
-        "computation:b30fca08-7267-4aa9-adc7-8c89f5efd928"
+        {
+            "topic": "computation:b30fca08-7267-4aa9-adc7-8c89f5efd928"
+        }
     ]
 }
