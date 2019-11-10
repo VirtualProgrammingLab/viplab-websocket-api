@@ -13,10 +13,10 @@ import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.slf4j.Logger;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -28,11 +28,10 @@ import de.uni_stuttgart.tik.viplab.websocket_api.messages.Message;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageDecoder;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageEncoder;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageUtil;
+import de.uni_stuttgart.tik.viplab.websocket_api.messages.SubscribeMessage;
 
 @ServerEndpoint(value = "/computations", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
 public class ComputationWebSocket {
-
-	private Session session;
 	private DecodedJWT jwt = null;
 
 	private Jsonb jsonb;
@@ -44,6 +43,9 @@ public class ComputationWebSocket {
 	private ECSComputationService computationService;
 
 	@Inject
+	private NotificationService notificationService;
+
+	@Inject
 	private Logger logger;
 
 	@PostConstruct
@@ -52,22 +54,19 @@ public class ComputationWebSocket {
 		jsonb = JsonbBuilder.create(jsonbConfig);
 	}
 
-	@OnOpen
-	public void onOpen(Session session) throws IOException {
-		this.session = session;
-	}
-
 	/**
 	 * Send a message to the remote WebSocket endpoint. The message is encoded
 	 * in the json format.
 	 * 
 	 * @param message
+	 * @param session
+	 *            the session representing the peer
 	 * @throws IllegalStateException
 	 *             if the WebSocket is not connected
 	 * @throws IllegalArgumentException
 	 *             if there is something wrong with the message object
 	 */
-	public void send(Object message) {
+	public static void send(Object message, Session session) {
 		if (session == null) {
 			throw new IllegalStateException("The WebSocket is not open jet.");
 		}
@@ -75,13 +74,11 @@ public class ComputationWebSocket {
 		messageEnvelop.type = MessageUtil.getTypeOfMessageObject(message);
 		messageEnvelop.content = message;
 		try {
-			this.session.getBasicRemote().sendObject(messageEnvelop);
+			session.getBasicRemote().sendObject(messageEnvelop);
 		} catch (EncodeException e) {
-			throw new IllegalArgumentException("The message of type "
-					+ messageEnvelop.type + " can't be encoded.", e);
+			throw new IllegalArgumentException("The message of type " + messageEnvelop.type + " can't be encoded.", e);
 		} catch (IOException e) {
-			throw new IllegalStateException("The message of type "
-					+ messageEnvelop.type + " can't be send.", e);
+			throw new IllegalStateException("The message of type " + messageEnvelop.type + " can't be send.", e);
 		}
 	}
 
@@ -89,24 +86,23 @@ public class ComputationWebSocket {
 		return jsonb.fromJson(jsonb.toJson(object), type);
 	}
 
+	@Counted
 	@OnMessage
-	public void onMessage(Message message) throws IOException {
-		this.logger.debug("got Message of type {} and content {}", message.type,
-				message.content);
+	public void onMessage(Message message, Session session) {
+		this.logger.debug("got Message of type {} and content {}", message.type, message.content);
 
 		switch (message.type) {
 		case AuthenticateMessage.MESSAGE_TYPE:
-			AuthenticateMessage authenticateMessage = new AuthenticateMessage();
-			authenticateMessage.jwt = (String) message.content;
-			this.onAuthentication(authenticateMessage);
+			this.onAuthentication(fromJsonObject(message.content, AuthenticateMessage.class));
 			break;
 		case CreateComputationMessage.MESSAGE_TYPE:
-			this.onCreateComputation(fromJsonObject(message.content,
-					CreateComputationMessage.class));
+			this.onCreateComputation(fromJsonObject(message.content, CreateComputationMessage.class), session);
+			break;
+		case SubscribeMessage.MESSAGE_TYPE:
+			this.onSubscribe(fromJsonObject(message.content, SubscribeMessage.class), session);
 			break;
 		default:
-			throw new IllegalArgumentException(
-					"Unkown message type: " + message.type);
+			throw new IllegalArgumentException("Unkown message type: " + message.type);
 		}
 	}
 
@@ -118,14 +114,19 @@ public class ComputationWebSocket {
 		this.logger.debug("set JWT: {}", this.jwt.getClaims());
 	}
 
-	private void onCreateComputation(CreateComputationMessage message) {
+	private void onCreateComputation(CreateComputationMessage message, Session session) {
 		computationService.createComputation();
 		ComputationMessage computationMessage = new ComputationMessage();
 		computationMessage.created = ZonedDateTime.now();
 		computationMessage.expires = ZonedDateTime.now().plusHours(3);
 		computationMessage.id = UUID.randomUUID().toString();
 		computationMessage.status = "created";
-		this.send(computationMessage);
+		notificationService.subscribe("computation:" + computationMessage.id, session);
+		send(computationMessage, session);
+	}
+
+	private void onSubscribe(SubscribeMessage subscribeMessage, Session session) {
+		notificationService.subscribe(subscribeMessage.topic, session);
 	}
 
 	@OnClose

@@ -35,4 +35,20 @@ public class TestJSONMessageProvider {
 			throw new RuntimeException(e);
 		}
 	}
+
+	/**
+	 * 
+	 * @param jwt
+	 *            the jwt string
+	 * @return
+	 */
+	public static JSONObject getAuthenticationMessage(String jwt) {
+		try {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("jwt", jwt);
+			return jsonObject;
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

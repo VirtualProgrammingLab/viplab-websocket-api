@@ -56,12 +56,12 @@ class ComputationWebSocketIT {
 		System.out.println(computationTemplateHash);
 		String jwt = JWT.create().withIssuer("test")
 				.withClaim("viplab.computation-template.digest", computationTemplateHash).sign(algorithm);
-		authenticateMessage.put("content", jwt);
+		authenticateMessage.put("content", TestJSONMessageProvider.getAuthenticationMessage(jwt));
 		websocket.send(authenticateMessage);
 		JSONObject computationTask = TestJSONMessageProvider.getComputationTask();
 		websocket.send(TestJSONMessageProvider.getCreateComputationMessage(computationTemplate, computationTask));
 
-		Mockito.verify(massageHandler, Mockito.timeout(100)).onMessage(
+		Mockito.verify(massageHandler, Mockito.timeout(300)).onMessage(
 				(JSONObject) argThat(SameJSONAs.sameJSONObjectAs(new JSONObject()).allowingExtraUnexpectedFields()));
 		websocket.closeBlocking();
 	}
