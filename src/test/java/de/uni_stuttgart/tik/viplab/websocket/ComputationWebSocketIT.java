@@ -1,11 +1,16 @@
 package de.uni_stuttgart.tik.viplab.websocket;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -19,14 +24,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.github.tomakehurst.wiremock.WireMockServer;
 
+import ru.lanwen.wiremock.ext.WiremockResolver;
+import ru.lanwen.wiremock.ext.WiremockResolver.Wiremock;
+import ru.lanwen.wiremock.ext.WiremockUriResolver;
+import ru.lanwen.wiremock.ext.WiremockUriResolver.WiremockUri;
 import uk.co.datumedge.hamcrest.json.SameJSONAs;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({ MockitoExtension.class, WiremockResolver.class, WiremockUriResolver.class })
 class ComputationWebSocketIT {
 
 	private static String websocketPort = System.getProperty("liberty.http.port");
@@ -35,20 +44,25 @@ class ComputationWebSocketIT {
 
 	@Mock
 	MessageHandler massageHandler;
+
 	private static Algorithm algorithm;
+	private static URI webSocketUri;
 
 	@BeforeAll
-	public static void setup() throws MalformedURLException {
+	public static void setup() throws MalformedURLException, URISyntaxException {
 		algorithm = JWTUtil.getAlgorithm(Paths.get(jwksPath).toUri().toURL(), kid);
+		webSocketUri = new URI("ws://localhost:" + websocketPort + "/websocket-api/computations");
 	}
 
 	@Test
-	void test() throws Exception {
+	void testCreateComputation(@Wiremock WireMockServer server, @WiremockUri String uri) throws Exception {
 		// Mockito.when(massageHandler.apply(ArgumentMatchers.any(JSONObject.class))).thenReturn("");
 
-		TestWebSocket websocket = new TestWebSocket(
-				new URI("ws://localhost:" + websocketPort + "/websocket-api/computations"), massageHandler);
-		assertThat("WebSocket connection", websocket.connectBlocking(100, TimeUnit.MILLISECONDS));
+		server.stubFor(get(urlEqualTo("/my/resource")).withHeader("Accept", equalTo("text/xml"))
+				.willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/xml").withBody("bla")));
+
+		TestWebSocket websocket = new TestWebSocket(webSocketUri, massageHandler);
+		assertThat("WebSocket connection to " + webSocketUri, websocket.connectBlocking(1000, TimeUnit.MILLISECONDS));
 		JSONObject authenticateMessage = new JSONObject();
 		authenticateMessage.put("type", "authenticate");
 		String computationTemplate = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate());

@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSComputationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.AuthenticateMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.CreateComputationMessage;
@@ -32,7 +33,8 @@ import de.uni_stuttgart.tik.viplab.websocket_api.messages.SubscribeMessage;
 
 @ServerEndpoint(value = "/computations", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
 public class ComputationWebSocket {
-	private DecodedJWT jwt = null;
+	
+	private static String SESSION_JWT = "session.jwt";
 
 	private Jsonb jsonb;
 
@@ -93,7 +95,7 @@ public class ComputationWebSocket {
 
 		switch (message.type) {
 		case AuthenticateMessage.MESSAGE_TYPE:
-			this.onAuthentication(fromJsonObject(message.content, AuthenticateMessage.class));
+			this.onAuthentication(fromJsonObject(message.content, AuthenticateMessage.class), session);
 			break;
 		case CreateComputationMessage.MESSAGE_TYPE:
 			this.onCreateComputation(fromJsonObject(message.content, CreateComputationMessage.class), session);
@@ -106,16 +108,16 @@ public class ComputationWebSocket {
 		}
 	}
 
-	private void onAuthentication(AuthenticateMessage message) {
-		if (this.jwt != null) {
+	private void onAuthentication(AuthenticateMessage message, Session session) {
+		if (session.getUserProperties().containsKey(SESSION_JWT)) {
 			throw new IllegalStateException("JWT is already set.");
 		}
-		this.jwt = this.authenticationService.authenticate(message.jwt);
-		this.logger.debug("set JWT: {}", this.jwt.getClaims());
+		DecodedJWT jwt = this.authenticationService.authenticate(message.jwt);
+		session.getUserProperties().put(SESSION_JWT, jwt);
 	}
 
 	private void onCreateComputation(CreateComputationMessage message, Session session) {
-		computationService.createComputation();
+		computationService.createComputation(message.template, message.task);
 		ComputationMessage computationMessage = new ComputationMessage();
 		computationMessage.created = ZonedDateTime.now();
 		computationMessage.expires = ZonedDateTime.now().plusHours(3);
