@@ -1,7 +1,9 @@
 package de.uni_stuttgart.tik.viplab.websocket_api;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -21,7 +23,7 @@ import org.slf4j.Logger;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSComputationService;
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.viplab.ECSComputationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.AuthenticateMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.CreateComputationMessage;
@@ -30,6 +32,7 @@ import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageDecoder;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageEncoder;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageUtil;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.SubscribeMessage;
+import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 
 @ServerEndpoint(value = "/computations", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
 public class ComputationWebSocket {
@@ -117,7 +120,9 @@ public class ComputationWebSocket {
 	}
 
 	private void onCreateComputation(CreateComputationMessage message, Session session) {
-		computationService.createComputation(message.template, message.task);
+		String templateJson = new String(Base64.getUrlDecoder().decode(message.template), StandardCharsets.UTF_8);
+		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
+		computationService.createComputation(template, message.task);
 		ComputationMessage computationMessage = new ComputationMessage();
 		computationMessage.created = ZonedDateTime.now();
 		computationMessage.expires = ZonedDateTime.now().plusHours(3);

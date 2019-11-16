@@ -1,7 +1,6 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.ecs;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Resource;
@@ -13,13 +12,13 @@ import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.spi.Connector;
 import org.eclipse.microprofile.reactive.messaging.spi.IncomingConnectorFactory;
-import org.eclipse.microprofile.reactive.messaging.spi.OutgoingConnectorFactory;
 import org.eclipse.microprofile.reactive.streams.operators.PublisherBuilder;
 import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
-import org.eclipse.microprofile.reactive.streams.operators.SubscriberBuilder;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.auth.ECSAuthenticationFilter;
 
 /**
  * ECS Connector as defined by Microprofile Reactive Messaging Specification
@@ -39,14 +38,10 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 
 	@Override
 	public PublisherBuilder<? extends Message<?>> getPublisherBuilder(Config config) {
-		URI url;
-		try {
-			url = new URI(config.getValue(SERVER_URL, String.class));
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(e);
-		}
+		URI url = URI.create(config.getValue(SERVER_URL, String.class));
 
-		ECSMessageClient ecsClient = null;// RestClientBuilder.newBuilder().baseUri(url).build(ECSMessageClient.class);
+		ECSMessageClient ecsClient = RestClientBuilder.newBuilder().baseUri(url)
+				.register(new ECSAuthenticationFilter("id2")).build(ECSMessageClient.class);
 
 		return ReactiveStreams.generate(() -> 0).flatMapCompletionStage(v -> {
 			CompletableFuture<Message<Object>> result = new CompletableFuture<>();
@@ -61,14 +56,22 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 	}
 
 	private void executePollActions(CompletableFuture<Message<Object>> result, ECSMessageClient ecsClient) {
-		Response response = ecsClient.removeFirstMessage();
+		Response response = null;
+		try {
+			response = ecsClient.removeFirstMessage();
+		} catch (Exception e) {
+			logger.error("Failed to poll ecs", e);
+			return;
+		}
+
 		if (response.getLength() > 0) {
 			Object entity = response.getEntity();
 
 			Message<Object> message = Message.of(entity);
 			result.complete(message);
+			logger.info("got message");
 		} else {
-			this.executor.execute(() -> {
+			this.executor.submit(() -> {
 				executePollActions(result, ecsClient);
 			});
 		}
@@ -76,7 +79,7 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 
 	private static <T> Void logPollFailure(T result, Throwable t) {
 		if (t != null) {
-			logger.error("Filed to poll ecs", t);
+			logger.error("Failed to poll ecs", t);
 		}
 		return null;
 	}
