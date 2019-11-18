@@ -28,7 +28,7 @@ public class BasicAuthenticationFilter implements ClientRequestFilter {
 	public void filter(ClientRequestContext requestContext) throws IOException {
 		MultivaluedMap<String, Object> headers = requestContext.getHeaders();
 		String value = Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8));
-		headers.add(HttpHeaders.AUTHORIZATION, value);
+		headers.add(HttpHeaders.AUTHORIZATION, "Basic " + value);
 	}
 
 }

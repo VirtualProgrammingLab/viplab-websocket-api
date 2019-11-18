@@ -18,7 +18,7 @@ import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.auth.ECSAuthenticationFilter;
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.auth.BasicAuthenticationFilter;
 
 /**
  * ECS Connector as defined by Microprofile Reactive Messaging Specification
@@ -29,8 +29,6 @@ import de.uni_stuttgart.tik.viplab.websocket_api.ecs.auth.ECSAuthenticationFilte
 @Connector("ecs")
 public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 
-	private static final String SERVER_URL = "url";
-
 	private static final Logger logger = LoggerFactory.getLogger(IncomingECSConnectorFactory.class);
 
 	@Resource
@@ -38,10 +36,12 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 
 	@Override
 	public PublisherBuilder<? extends Message<?>> getPublisherBuilder(Config config) {
-		URI url = URI.create(config.getValue(SERVER_URL, String.class));
+		URI url = URI.create(config.getValue(ECSConnector.SERVER_URL, String.class));
+		String username = config.getValue(ECSConnector.USERNAME, String.class);
+		String password = config.getValue(ECSConnector.PASSWORD, String.class);
 
 		ECSMessageClient ecsClient = RestClientBuilder.newBuilder().baseUri(url)
-				.register(new ECSAuthenticationFilter("id2")).build(ECSMessageClient.class);
+				.register(new BasicAuthenticationFilter(username, password)).build(ECSMessageClient.class);
 
 		return ReactiveStreams.generate(() -> 0).flatMapCompletionStage(v -> {
 			CompletableFuture<Message<Object>> result = new CompletableFuture<>();
