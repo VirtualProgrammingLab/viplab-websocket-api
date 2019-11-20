@@ -37,7 +37,7 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 		ECSMessageClient ecsClient = RestClientBuilder.newBuilder().baseUri(url)
 				.register(new BasicAuthenticationFilter(username, password)).build(ECSMessageClient.class);
 
-		ECSInput<Object> ecsInput = new ECSInput<>(ecsClient, executor);
+		ECSInput<Object> ecsInput = new ECSInput<>(ecsClient, executor, Object.class);
 		return ecsInput.getPublisher();
 	}
 

@@ -1,8 +1,10 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
 
+import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -19,10 +21,12 @@ public class ECSInput<T> {
 
 	private final ECSMessageClient ecsClient;
 	private final ManagedScheduledExecutorService executor;
+	private final Class<T> messageType;
 
-	public ECSInput(ECSMessageClient ecsClient, ManagedScheduledExecutorService executor) {
+	public ECSInput(ECSMessageClient ecsClient, ManagedScheduledExecutorService executor, Class<T> messageType) {
 		this.ecsClient = ecsClient;
 		this.executor = executor;
+		this.messageType = messageType;
 	}
 
 	public PublisherBuilder<Message<T>> getPublisher() {
@@ -48,7 +52,7 @@ public class ECSInput<T> {
 		}
 
 		if (response.getLength() > 0) {
-			T entity = (T) response.getEntity();// TODO
+			T entity = response.readEntity(messageType);
 
 			Message<T> message = Message.of(entity);
 			result.complete(message);
