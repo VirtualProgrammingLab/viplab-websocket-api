@@ -1,7 +1,11 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
@@ -27,6 +31,8 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 
 	@Resource
 	private ManagedScheduledExecutorService executor;
+	
+	private final List<ECSInput<Object>> inputs = Collections.synchronizedList(new ArrayList<>());
 
 	@Override
 	public PublisherBuilder<? extends Message<?>> getPublisherBuilder(Config config) {
@@ -38,7 +44,22 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 				.register(new BasicAuthenticationFilter(username, password)).build(ECSMessageClient.class);
 
 		ECSInput<Object> ecsInput = new ECSInput<>(ecsClient, executor, Object.class);
+		inputs.add(ecsInput);
 		return ecsInput.getPublisher();
 	}
+	
+	@PreDestroy
+    private void shutdown() {
+        synchronized (inputs) {
+            for (ECSInput<Object> input : inputs) {
+                try {
+                	input.shutdown();
+                } catch (Exception e) {
+                    // Ensures we attempt to shutdown all inputs
+                    // and also that we get an FFDC for any errors
+                }
+            }
+        }
+    }
 
 }
