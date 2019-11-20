@@ -1,10 +1,8 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
 
-import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
-import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.reactive.messaging.Message;

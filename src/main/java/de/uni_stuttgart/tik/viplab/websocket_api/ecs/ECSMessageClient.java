@@ -12,9 +12,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
+
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector.JsonWriter;
+
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@RegisterProvider(value = JsonWriter.class)
 public interface ECSMessageClient extends AutoCloseable {
 	@GET
 	@Path("/")
@@ -22,7 +27,7 @@ public interface ECSMessageClient extends AutoCloseable {
 	
 	@POST
 	@Path("/")
-	public Response createMessage(String message, @HeaderParam("X-EcsReceiverMemberships") String receiver);
+	public Response createMessage(Object message, @HeaderParam("X-EcsReceiverMemberships") String receiver);
 	
 	@GET
 	@Path("/{id}")

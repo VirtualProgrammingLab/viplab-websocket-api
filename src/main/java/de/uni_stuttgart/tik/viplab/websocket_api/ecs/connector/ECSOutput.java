@@ -1,7 +1,5 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
 
-import javax.json.bind.JsonbBuilder;
-
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
 import org.eclipse.microprofile.reactive.streams.operators.SubscriberBuilder;
@@ -15,9 +13,11 @@ public class ECSOutput<T> {
 	private static Logger logger = LoggerFactory.getLogger(ECSOutput.class); 
 
 	private final ECSMessageClient ecsClient;
+	private final String receiverMemberships;
 
-	public ECSOutput(ECSMessageClient ecsClient) {
+	public ECSOutput(ECSMessageClient ecsClient, String receiverMemberships) {
 		this.ecsClient = ecsClient;
+		this.receiverMemberships = receiverMemberships;
 	}
 
 	public SubscriberBuilder<Message<T>, Void> getSubscriber() {
@@ -26,9 +26,7 @@ public class ECSOutput<T> {
 
 	private void sendMessage(Message<T> message) {
 		try {
-			System.out.println("hu");
-			
-			this.ecsClient.createMessage(JsonbBuilder.create().toJson(message.getPayload()), "1");
+			this.ecsClient.createMessage(message.getPayload(), receiverMemberships);
 			message.ack();
 		} catch (Exception e) {
 			logger.error("", e);

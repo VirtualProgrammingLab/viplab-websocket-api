@@ -23,11 +23,12 @@ public class OutgoingECSConnectorFactory implements OutgoingConnectorFactory {
 		URI url = URI.create(config.getValue(ECSConnector.SERVER_URL, String.class));
 		String username = config.getValue(ECSConnector.USERNAME, String.class);
 		String password = config.getValue(ECSConnector.PASSWORD, String.class);
+		String receiverMemberships = config.getValue(ECSConnector.RECEIVER_MEMBERSHIPS, String.class);
 
 		ECSMessageClient ecsClient = RestClientBuilder.newBuilder().baseUri(url)
 				.register(new BasicAuthenticationFilter(username, password)).build(ECSMessageClient.class);
 
-		ECSOutput<Object> ecsOutput = new ECSOutput<>(ecsClient);
+		ECSOutput<Object> ecsOutput = new ECSOutput<>(ecsClient, receiverMemberships);
 		return ecsOutput.getSubscriber();
 	}
 }
