@@ -1,6 +1,5 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs;
+package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
 
-import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -8,6 +7,8 @@ import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
 import org.eclipse.microprofile.reactive.streams.operators.SubscriberBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSMessageClient;
 
 public class ECSOutput<T> {
 	

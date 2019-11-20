@@ -1,23 +1,19 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs;
+package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
 
 import java.net.URI;
-import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.spi.Connector;
 import org.eclipse.microprofile.reactive.messaging.spi.IncomingConnectorFactory;
 import org.eclipse.microprofile.reactive.streams.operators.PublisherBuilder;
-import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSMessageClient;
 import de.uni_stuttgart.tik.viplab.websocket_api.ecs.auth.BasicAuthenticationFilter;
 
 /**
@@ -28,8 +24,6 @@ import de.uni_stuttgart.tik.viplab.websocket_api.ecs.auth.BasicAuthenticationFil
 @ApplicationScoped
 @Connector("ecs")
 public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
-
-	private static final Logger logger = LoggerFactory.getLogger(IncomingECSConnectorFactory.class);
 
 	@Resource
 	private ManagedScheduledExecutorService executor;
@@ -43,44 +37,8 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 		ECSMessageClient ecsClient = RestClientBuilder.newBuilder().baseUri(url)
 				.register(new BasicAuthenticationFilter(username, password)).build(ECSMessageClient.class);
 
-		return ReactiveStreams.generate(() -> 0).flatMapCompletionStage(v -> {
-			CompletableFuture<Message<Object>> result = new CompletableFuture<>();
-			result.handle(IncomingECSConnectorFactory::logPollFailure);
-
-			this.executor.submit(() -> {
-				executePollActions(result, ecsClient);
-			});
-
-			return result;
-		});
+		ECSInput<Object> ecsInput = new ECSInput<>(ecsClient, executor);
+		return ecsInput.getPublisher();
 	}
 
-	private void executePollActions(CompletableFuture<Message<Object>> result, ECSMessageClient ecsClient) {
-		Response response = null;
-		try {
-			response = ecsClient.removeFirstMessage();
-		} catch (Exception e) {
-			logger.error("Failed to poll ecs", e);
-			return;
-		}
-
-		if (response.getLength() > 0) {
-			Object entity = response.getEntity();
-
-			Message<Object> message = Message.of(entity);
-			result.complete(message);
-			logger.info("got message");
-		} else {
-			this.executor.submit(() -> {
-				executePollActions(result, ecsClient);
-			});
-		}
-	}
-
-	private static <T> Void logPollFailure(T result, Throwable t) {
-		if (t != null) {
-			logger.error("Failed to poll ecs", t);
-		}
-		return null;
-	}
 }
