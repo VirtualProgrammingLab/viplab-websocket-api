@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
+package de.uni_stuttgart.tik.ecs.ecc.connector;
 
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
@@ -6,7 +6,7 @@ import org.eclipse.microprofile.reactive.streams.operators.SubscriberBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSMessageClient;
+import de.uni_stuttgart.tik.ecs.ecc.ECSMessageClient;
 
 public class ECSOutput<T> {
 

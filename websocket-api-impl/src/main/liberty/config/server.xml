@@ -15,4 +15,6 @@
 	<httpEndpoint httpPort="${default.http.port}"
 		httpsPort="-1" id="defaultHttpEndpoint" onError="FAIL" />
 	<logging traceSpecification="de.uni_stuttgart.*=all" />
+	
+	<webApplication id="websocket-api-impl" location="websocket-api-impl.war" contextRoot="${app.name}"/>
 </server>

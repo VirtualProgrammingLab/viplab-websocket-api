@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs;
+package de.uni_stuttgart.tik.ecs.ecc;
 
 import java.util.List;
 

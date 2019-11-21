@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs.auth;
+package de.uni_stuttgart.tik.ecs.ecc.auth;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
+package de.uni_stuttgart.tik.ecs.ecc.connector;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -9,7 +9,7 @@ import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.streams.operators.PublisherBuilder;
 import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSMessageClient;
+import de.uni_stuttgart.tik.ecs.ecc.ECSMessageClient;
 
 public class ECSInput<T> {
 

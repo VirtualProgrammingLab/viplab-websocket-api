@@ -1,9 +1,9 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
+package de.uni_stuttgart.tik.ecs.ecc.connector;
 
 /**
  * Defines the configuration properties for the ECS Connectors
  */
-public class ECSConnector {
+public class ConnectorConfig {
 	public static final String SERVER_URL = "url";
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";

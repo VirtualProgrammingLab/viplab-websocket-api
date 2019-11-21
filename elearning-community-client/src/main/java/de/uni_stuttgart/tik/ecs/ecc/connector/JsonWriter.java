@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
+package de.uni_stuttgart.tik.ecs.ecc.connector;
 
 import java.io.IOException;
 import java.io.OutputStream;

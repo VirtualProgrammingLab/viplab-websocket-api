@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs;
+package de.uni_stuttgart.tik.ecs.ecc;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector.JsonWriter;
+import de.uni_stuttgart.tik.ecs.ecc.connector.JsonWriter;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)

@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.ecs.connector;
+package de.uni_stuttgart.tik.ecs.ecc.connector;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -17,8 +17,8 @@ import org.eclipse.microprofile.reactive.messaging.spi.IncomingConnectorFactory;
 import org.eclipse.microprofile.reactive.streams.operators.PublisherBuilder;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSMessageClient;
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.auth.BasicAuthenticationFilter;
+import de.uni_stuttgart.tik.ecs.ecc.ECSMessageClient;
+import de.uni_stuttgart.tik.ecs.ecc.auth.BasicAuthenticationFilter;
 
 /**
  * ECS Connector as defined by Microprofile Reactive Messaging Specification
@@ -36,9 +36,9 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 
 	@Override
 	public PublisherBuilder<? extends Message<?>> getPublisherBuilder(Config config) {
-		URI url = URI.create(config.getValue(ECSConnector.SERVER_URL, String.class));
-		String username = config.getValue(ECSConnector.USERNAME, String.class);
-		String password = config.getValue(ECSConnector.PASSWORD, String.class);
+		URI url = URI.create(config.getValue(ConnectorConfig.SERVER_URL, String.class));
+		String username = config.getValue(ConnectorConfig.USERNAME, String.class);
+		String password = config.getValue(ConnectorConfig.PASSWORD, String.class);
 
 		ECSMessageClient ecsClient = RestClientBuilder.newBuilder().baseUri(url)
 				.register(new BasicAuthenticationFilter(username, password)).build(ECSMessageClient.class);
