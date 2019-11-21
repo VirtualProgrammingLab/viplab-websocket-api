@@ -37,7 +37,7 @@
 			<groupId>de.uni-stuttgart.tik.viplab</groupId>
 			<artifactId>elearning-community-client</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<scope>runtime</scope>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.websocket</groupId>

@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.viplab.ECSComputationService;
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSComputationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.AuthenticateMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.CreateComputationMessage;

@@ -1,9 +1,5 @@
 package de.uni_stuttgart.tik.viplab.websocket;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
@@ -56,10 +52,6 @@ class ComputationWebSocketIT {
 
 	@Test
 	void testCreateComputation(@Wiremock WireMockServer server, @WiremockUri String uri) throws Exception {
-		// Mockito.when(massageHandler.apply(ArgumentMatchers.any(JSONObject.class))).thenReturn("");
-
-		server.stubFor(get(urlEqualTo("/my/resource")).withHeader("Accept", equalTo("text/xml"))
-				.willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/xml").withBody("bla")));
 
 		TestWebSocket websocket = new TestWebSocket(webSocketUri, massageHandler);
 		assertThat("WebSocket connection to " + webSocketUri, websocket.connectBlocking(1000, TimeUnit.MILLISECONDS));
