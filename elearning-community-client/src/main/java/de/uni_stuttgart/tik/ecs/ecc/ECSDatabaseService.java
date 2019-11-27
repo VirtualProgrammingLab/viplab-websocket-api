@@ -17,8 +17,10 @@ public class ECSDatabaseService<T> {
 
 	private final ECSMessageClient ecsClient;
 	private final String receiverMemberships;
+	private final URI url;
 
 	public ECSDatabaseService(URI url, String username, String password, String receiverMemberships) {
+		this.url = url;
 		this.receiverMemberships = receiverMemberships;
 		this.ecsClient = RestClientBuilder.newBuilder().baseUri(url)
 				.register(new BasicAuthenticationFilter(username, password)).build(ECSMessageClient.class);
@@ -26,7 +28,7 @@ public class ECSDatabaseService<T> {
 
 	public URI store(T data) {
 		try (Response createMessage = this.ecsClient.createMessage(data, receiverMemberships)) {
-			return createMessage.getLocation();
+			return this.url.resolve(createMessage.getLocation());
 		}
 	}
 }
