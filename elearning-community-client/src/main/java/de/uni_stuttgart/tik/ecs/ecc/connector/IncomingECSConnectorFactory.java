@@ -39,11 +39,12 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 		URI url = URI.create(config.getValue(ConnectorConfig.SERVER_URL, String.class));
 		String username = config.getValue(ConnectorConfig.USERNAME, String.class);
 		String password = config.getValue(ConnectorConfig.PASSWORD, String.class);
+		long pollingRate = config.getOptionalValue(ConnectorConfig.POLLING_DELAY, Long.class).orElse(1000l);
 
 		ECSMessageClient ecsClient = RestClientBuilder.newBuilder().baseUri(url)
 				.register(new BasicAuthenticationFilter(username, password)).build(ECSMessageClient.class);
 
-		ECSInput<Object> ecsInput = new ECSInput<>(ecsClient, executor, Object.class);
+		ECSInput<Object> ecsInput = new ECSInput<>(ecsClient, executor, Object.class, pollingRate);
 		inputs.add(ecsInput);
 		return ecsInput.getPublisher();
 	}

@@ -16,13 +16,28 @@ public class ECSInput<T> {
 	private final ECSMessageClient ecsClient;
 	private final ManagedScheduledExecutorService executor;
 	private final Class<T> messageType;
+	private final long pollingDelay;
 
 	private boolean running = true;
 
-	public ECSInput(ECSMessageClient ecsClient, ManagedScheduledExecutorService executor, Class<T> messageType) {
+	/**
+	 * 
+	 * @param ecsClient
+	 *            the ecs client used to poll the remote ecs
+	 * @param executor
+	 *            an ExecutorService to run the polling Thread
+	 * @param messageType
+	 *            the class of the message type
+	 * @param pollingDelay
+	 *            the delay in milliseconds between polling when there was no
+	 *            message
+	 */
+	public ECSInput(ECSMessageClient ecsClient, ManagedScheduledExecutorService executor, Class<T> messageType,
+			long pollingDelay) {
 		this.ecsClient = ecsClient;
 		this.executor = executor;
 		this.messageType = messageType;
+		this.pollingDelay = pollingDelay;
 	}
 
 	public PublisherBuilder<Message<T>> getPublisher() {
@@ -46,9 +61,11 @@ public class ECSInput<T> {
 					Message<T> message = Message.of(entity);
 					result.complete(message);
 					break;
+				} else {
+					Thread.sleep(pollingDelay);
 				}
 			}
-		} catch (Throwable t) {
+		} catch (Exception t) {
 			result.completeExceptionally(new IllegalStateException("Failed to poll ecs", t));
 		}
 	}
