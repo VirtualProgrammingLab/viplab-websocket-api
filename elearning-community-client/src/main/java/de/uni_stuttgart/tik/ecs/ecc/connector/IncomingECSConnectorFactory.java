@@ -11,6 +11,9 @@ import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.spi.Connector;
 import org.eclipse.microprofile.reactive.messaging.spi.IncomingConnectorFactory;
@@ -25,13 +28,14 @@ import de.uni_stuttgart.tik.ecs.ecc.auth.BasicAuthenticationFilter;
  * 
  * @author Leon Kiefer
  */
+@Liveness
 @ApplicationScoped
 @Connector("ecs")
-public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
+public class IncomingECSConnectorFactory implements IncomingConnectorFactory, HealthCheck {
 
 	@Resource
 	private ManagedScheduledExecutorService executor;
-	
+
 	private final List<ECSInput<Object>> inputs = Collections.synchronizedList(new ArrayList<>());
 
 	@Override
@@ -48,19 +52,28 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory {
 		inputs.add(ecsInput);
 		return ecsInput.getPublisher();
 	}
-	
+
 	@PreDestroy
-    private void shutdown() {
-        synchronized (inputs) {
-            for (ECSInput<Object> input : inputs) {
-                try {
-                	input.shutdown();
-                } catch (Exception e) {
-                    // Ensures we attempt to shutdown all inputs
-                    // and also that we get an FFDC for any errors
-                }
-            }
-        }
-    }
+	private void shutdown() {
+		synchronized (inputs) {
+			for (ECSInput<Object> input : inputs) {
+				try {
+					input.shutdown();
+				} catch (Exception e) {
+					// Ensures we attempt to shutdown all inputs
+					// and also that we get an FFDC for any errors
+				}
+			}
+		}
+	}
+
+	@Override
+	public HealthCheckResponse call() {
+		boolean running = true;
+		for (ECSInput<Object> input : inputs) {
+			running &= input.isRunning();
+		}
+		return HealthCheckResponse.named("ECS Polling connections").state(running).build();
+	}
 
 }

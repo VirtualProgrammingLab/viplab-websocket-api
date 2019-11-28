@@ -3,15 +3,21 @@ package de.uni_stuttgart.tik.ecs.ecc.connector;
 import java.util.concurrent.CompletableFuture;
 
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.streams.operators.PublisherBuilder;
 import org.eclipse.microprofile.reactive.streams.operators.ReactiveStreams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.uni_stuttgart.tik.ecs.ecc.ECSMessageClient;
 
 public class ECSInput<T> {
+	
+	private static Logger logger = LoggerFactory.getLogger(ECSInput.class);
 
 	private final ECSMessageClient ecsClient;
 	private final ManagedScheduledExecutorService executor;
@@ -19,6 +25,10 @@ public class ECSInput<T> {
 	private final long pollingDelay;
 
 	private boolean running = true;
+
+	public boolean isRunning() {
+		return running;
+	}
 
 	/**
 	 * 
@@ -52,21 +62,27 @@ public class ECSInput<T> {
 
 	private void executePollActions(CompletableFuture<Message<T>> result, ECSMessageClient ecsClient) {
 		try {
-			while (this.running) {
-				Response response = ecsClient.removeFirstMessage();
-
-				if (response.getLength() > 0) {
-					T entity = response.readEntity(messageType);
-
-					Message<T> message = Message.of(entity);
-					result.complete(message);
-					break;
-				} else {
+			Response response = null;
+			while (this.running && response == null) {
+				try {
+					response = ecsClient.removeFirstMessage();
+					if (response.getLength() <= 0) {
+						response = null;
+						Thread.sleep(pollingDelay);
+					}
+				} catch (WebApplicationException | ProcessingException e) {
+					logger.warn("Could not poll ecs. Waiting {} ms and try again.", pollingDelay, e);
 					Thread.sleep(pollingDelay);
 				}
 			}
+			if (response != null) {
+				T entity = response.readEntity(messageType);
+				Message<T> message = Message.of(entity);
+				result.complete(message);
+			}
 		} catch (Exception t) {
-			result.completeExceptionally(new IllegalStateException("Failed to poll ecs", t));
+			result.completeExceptionally(new IllegalStateException("Unexpected error occured while polling ecs", t));
+			this.running = false;
 		}
 	}
 

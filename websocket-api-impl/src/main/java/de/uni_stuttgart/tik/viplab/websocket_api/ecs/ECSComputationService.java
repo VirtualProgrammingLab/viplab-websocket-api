@@ -47,12 +47,13 @@ public class ECSComputationService {
 		ecsDatabaseService = new ECSDatabaseService<>(url, username, password, receiverMemberships);
 	}
 
-	public void createComputation(ComputationTemplate template, ComputationTask task) {
+	public String createComputation(ComputationTemplate template, ComputationTask task) {
 		Exercise exercise = this.converter.convertComputationTemplateToExercise(template);
 		URI exerciseURL = createExercise(exercise);
 
 		Solution solution = this.converter.convertComputationTaskToSolution(task, exerciseURL);
 		sendSolutions(solution);
+		return solution.ID;
 	}
 
 	@Incoming("results")
