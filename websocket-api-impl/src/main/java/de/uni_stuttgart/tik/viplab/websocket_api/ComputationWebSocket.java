@@ -123,11 +123,7 @@ public class ComputationWebSocket {
 		String templateJson = new String(Base64.getUrlDecoder().decode(message.template), StandardCharsets.UTF_8);
 		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
 		String computationId = computationService.createComputation(template, message.task);
-		ComputationMessage computationMessage = new ComputationMessage();
-		computationMessage.created = ZonedDateTime.now();
-		computationMessage.expires = ZonedDateTime.now().plusHours(3);
-		computationMessage.id = computationId;
-		computationMessage.status = "created";
+		ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(), ZonedDateTime.now().plusHours(3), "created");
 		notificationService.subscribe("computation:" + computationId, session);
 		send(computationMessage, session);
 	}

@@ -1,22 +1,28 @@
 package de.uni_stuttgart.tik.viplab.websocket;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,14 +30,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 
-import ru.lanwen.wiremock.ext.WiremockResolver;
-import ru.lanwen.wiremock.ext.WiremockResolver.Wiremock;
-import ru.lanwen.wiremock.ext.WiremockUriResolver;
-import ru.lanwen.wiremock.ext.WiremockUriResolver.WiremockUri;
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Solution;
 import uk.co.datumedge.hamcrest.json.SameJSONAs;
 
-@ExtendWith({ MockitoExtension.class, WiremockResolver.class, WiremockUriResolver.class })
+@ExtendWith(MockitoExtension.class)
 class ComputationWebSocketIT {
 
 	private static String websocketPort = System.getProperty("liberty.http.port");
@@ -40,6 +44,7 @@ class ComputationWebSocketIT {
 
 	@Mock
 	MessageHandler massageHandler;
+	private WireMockServer ecs;
 
 	private static Algorithm algorithm;
 	private static URI webSocketUri;
@@ -50,25 +55,54 @@ class ComputationWebSocketIT {
 		webSocketUri = new URI("ws://localhost:" + websocketPort + "/websocket-api/computations");
 	}
 
-	@Test
-	void testCreateComputation(@Wiremock WireMockServer server, @WiremockUri String uri) throws Exception {
+	@BeforeEach
+	public void setupWireMockServer() {
+		ecs = new WireMockServer(options().port(8080));
+		ecs.start();
+	}
 
+	@AfterEach
+	private void stopWireMockServer() {
+		ecs.stop();
+		ecs = null;
+	}
+
+	@Test
+	void testConnectionIsPossible() throws InterruptedException {
 		TestWebSocket websocket = new TestWebSocket(webSocketUri, massageHandler);
 		assertThat("WebSocket connection to " + webSocketUri, websocket.connectBlocking(1000, TimeUnit.MILLISECONDS));
-		JSONObject authenticateMessage = new JSONObject();
-		authenticateMessage.put("type", "authenticate");
+	}
+
+	@Test
+	void testCreateComputation() throws Exception {
+		// stubbing
+		ecs.stubFor(post("/numlab/exercises"));
+		ecs.stubFor(post("/numlab/solutions"));
+		ecs.stubFor(post("/numlab/results/fifo").willReturn(ResponseDefinitionBuilder.okForEmptyJson()));
+		// create resources
 		String computationTemplate = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate());
 		String computationTemplateHash = JWTUtil.sha256(computationTemplate);
-		System.out.println(computationTemplateHash);
 		String jwt = JWT.create().withIssuer("test")
 				.withClaim("viplab.computation-template.digest", computationTemplateHash).sign(algorithm);
-		authenticateMessage.put("content", TestJSONMessageProvider.getAuthenticationMessage(jwt));
-		websocket.send(authenticateMessage);
+		// connection
+		TestWebSocket websocket = new TestWebSocket(webSocketUri, massageHandler);
+		websocket.connectBlocking(1000, TimeUnit.MILLISECONDS);
+		// authenticate
+		websocket.send(TestJSONMessageProvider.getAuthenticationMessage(jwt));
+		// create computation
 		JSONObject computationTask = TestJSONMessageProvider.getComputationTask();
 		websocket.send(TestJSONMessageProvider.getCreateComputationMessage(computationTemplate, computationTask));
-
-		Mockito.verify(massageHandler, Mockito.timeout(300)).onMessage(
-				(JSONObject) argThat(SameJSONAs.sameJSONObjectAs(new JSONObject()).allowingExtraUnexpectedFields()));
+		// stub the result
+		ecs.stubFor(post("/numlab/results/fifo")
+				.willReturn(ResponseDefinitionBuilder.okForJson(TestECSJSONProvider.getResult(new Solution()))));
+		// verify result
+		ArgumentCaptor<JSONObject> messagesCaptor = ArgumentCaptor.forClass(JSONObject.class);
+		Mockito.verify(massageHandler, Mockito.timeout(1100)).onMessage(messagesCaptor.capture());
+		List<JSONObject> messages = messagesCaptor.getAllValues();
+		assertThat("received two responses", messages, hasSize(2));
+		assertThat(messages.get(0), SameJSONAs.sameJSONObjectAs(new JSONObject()).allowingExtraUnexpectedFields());
+		assertThat(messages.get(1), SameJSONAs.sameJSONObjectAs(new JSONObject()).allowingExtraUnexpectedFields());
+		// close connection
 		websocket.closeBlocking();
 	}
 

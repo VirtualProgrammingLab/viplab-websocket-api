@@ -44,9 +44,12 @@ public class TestJSONMessageProvider {
 	 */
 	public static JSONObject getAuthenticationMessage(String jwt) {
 		try {
+			JSONObject authenticateMessage = new JSONObject();
+			authenticateMessage.put("type", "authenticate");
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("jwt", jwt);
-			return jsonObject;
+			authenticateMessage.put("content", jsonObject);
+			return authenticateMessage;
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}

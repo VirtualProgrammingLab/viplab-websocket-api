@@ -9,4 +9,11 @@ public class ComputationMessage {
 	public ZonedDateTime created;
 	public ZonedDateTime expires;
 	public String status;
+
+	public ComputationMessage(String id, ZonedDateTime created, ZonedDateTime expires, String status) {
+		this.id = id;
+		this.created = created;
+		this.expires = expires;
+		this.status = status;
+	}
 }
