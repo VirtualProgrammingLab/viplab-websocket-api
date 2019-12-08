@@ -24,7 +24,7 @@ public class Exercise {
 		public String group;
 		public boolean visible = false;
 		public boolean modifiable = false;
-		public String namne;
+		public String name;
 		public String MIMEtype;
 		public String syntaxHighlighting;
 		public String emphasis;

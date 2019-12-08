@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Base64;
-import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
