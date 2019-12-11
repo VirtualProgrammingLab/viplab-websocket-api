@@ -18,8 +18,17 @@ public class Solution {
 		public String jobID;
 		public String jobSender;
 	}
-	
+
 	public static class ExerciseModifications {
 		public List<Element> elements;
+	}
+
+	public static class Wrapper {
+
+		public Solution Solution;
+
+		public Wrapper(Solution solution) {
+			Solution = solution;
+		}
 	}
 }

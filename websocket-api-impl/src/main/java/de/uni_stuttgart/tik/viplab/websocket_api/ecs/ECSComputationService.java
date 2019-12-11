@@ -35,7 +35,7 @@ public class ECSComputationService {
 	@Inject
 	private Config config;
 
-	private ECSDatabaseService<Exercise> ecsDatabaseService;
+	private ECSDatabaseService<Exercise.Wrapper> ecsDatabaseService;
 
 	@PostConstruct
 	public void setup() {
@@ -65,11 +65,11 @@ public class ECSComputationService {
 	}
 
 	public URI createExercise(Exercise exercise) {
-		return ecsDatabaseService.store(exercise);
+		return ecsDatabaseService.store(new Exercise.Wrapper(exercise));
 	}
 
 	public void sendSolutions(Solution msg) {
-		solutions.send(msg);
+		solutions.send(new Solution.Wrapper(msg));
 	}
 
 }

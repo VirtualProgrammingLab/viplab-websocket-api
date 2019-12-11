@@ -31,11 +31,20 @@ public class Exercise {
 		public String value;
 	}
 
-	static class Routing {
+	public static class Routing {
 		public String solutionQueue;
 	}
 
-	static class Config {
+	public static class Config {
 		// TODO
+	}
+
+	public static class Wrapper {
+		public Exercise Exercise;
+
+		public Wrapper(Exercise exercise) {
+			Exercise = exercise;
+		}
+
 	}
 }
