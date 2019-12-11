@@ -17,7 +17,7 @@ public class Exercise {
 	public Routing routing;
 	public Map<String, URI> elementMap;
 	public Map<String, Map<String, Object>> elementProperties;
-	public Config config;
+	public Map<String, Object> config;
 
 	public static class Element {
 		public String identifier;
@@ -33,10 +33,6 @@ public class Exercise {
 
 	public static class Routing {
 		public String solutionQueue;
-	}
-
-	public static class Config {
-		// TODO
 	}
 
 	public static class Wrapper {

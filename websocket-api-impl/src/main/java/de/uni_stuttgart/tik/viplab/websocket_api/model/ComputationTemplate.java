@@ -6,32 +6,37 @@ import java.util.Map;
 public class ComputationTemplate {
 	public String identifier;
 	/**
-	 * The base environment used for the Computation, the environment defines language, runtime, libraries and tools
+	 * The base environment used for the Computation, the environment defines
+	 * language, runtime, libraries and tools
 	 */
 	public String environment;
 	public Map<String, Object> metadata;
 	public List<File> files;
+	/**
+	 * The configuration of the environment. All environment specific
+	 * configuration goes in here.
+	 */
 	public Map<String, Object> configuration;
 
-	static class File {
+	public static class File {
 		/**
 		 * only valid in the context of this ComputationTemplate
 		 */
 		public String identifier;
 		public String path;
-		public String access;
 		public Map<String, Object> metadata;
 		public List<Part> parts;
 
-		static class Part {
+		public static class Part {
 			public String identifier;
 			/**
 			 * Base64 encoded content
 			 */
 			public String content;
+			public String access;
 		}
 
-		enum Access {
+		public enum Access {
 			INVISIBLE, VISIBLE, MODIFIABLE
 		}
 	}
