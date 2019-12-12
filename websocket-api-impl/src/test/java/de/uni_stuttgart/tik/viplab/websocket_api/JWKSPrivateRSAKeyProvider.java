@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket;
+package de.uni_stuttgart.tik.viplab.websocket_api;
 
 import java.math.BigInteger;
 import java.net.URL;

@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket;
+package de.uni_stuttgart.tik.viplab.websocket_api;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -80,7 +80,7 @@ class ComputationWebSocketIT {
 		ecs.stubFor(post("/numlab/solutions"));
 		ecs.stubFor(post("/numlab/results/fifo").willReturn(ResponseDefinitionBuilder.okForEmptyJson()));
 		// create resources
-		String computationTemplate = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate());
+		String computationTemplate = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate("Java"));
 		String computationTemplateHash = JWTUtil.sha256(computationTemplate);
 		String jwt = JWT.create().withIssuer("test")
 				.withClaim("viplab.computation-template.digest", computationTemplateHash).sign(algorithm);
@@ -97,7 +97,7 @@ class ComputationWebSocketIT {
 				.willReturn(ResponseDefinitionBuilder.okForJson(TestECSJSONProvider.getResult(new Solution()))));
 		// verify result
 		ArgumentCaptor<JSONObject> messagesCaptor = ArgumentCaptor.forClass(JSONObject.class);
-		Mockito.verify(massageHandler, Mockito.timeout(1100)).onMessage(messagesCaptor.capture());
+		Mockito.verify(massageHandler, Mockito.timeout(2000).atLeast(2)).onMessage(messagesCaptor.capture());
 		List<JSONObject> messages = messagesCaptor.getAllValues();
 		assertThat("received two responses", messages, hasSize(2));
 		assertThat(messages.get(0), SameJSONAs.sameJSONObjectAs(new JSONObject()).allowingExtraUnexpectedFields());

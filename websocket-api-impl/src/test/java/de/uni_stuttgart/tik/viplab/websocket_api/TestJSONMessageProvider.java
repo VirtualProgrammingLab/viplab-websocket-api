@@ -1,12 +1,27 @@
-package de.uni_stuttgart.tik.viplab.websocket;
+package de.uni_stuttgart.tik.viplab.websocket_api;
 
+import java.util.UUID;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class TestJSONMessageProvider {
-	public static JSONObject getComputationTemplate() {
-		JSONObject computationTemplate = new JSONObject();
-		return computationTemplate;
+	public static JSONObject getComputationTemplate(String environment) {
+		try {
+			JSONObject computationTemplate = new JSONObject();
+
+			computationTemplate.put("identifier", UUID.randomUUID().toString());
+			computationTemplate.put("environment", environment);
+			
+			JSONArray files = new JSONArray();
+
+			computationTemplate.put("files", files);
+
+			return computationTemplate;
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static JSONObject getComputationTask() {

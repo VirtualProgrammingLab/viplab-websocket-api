@@ -29,10 +29,28 @@ public class Exercise {
 		public String syntaxHighlighting;
 		public String emphasis;
 		public String value;
+
+		@Override
+		public String toString() {
+			return "Element [" + (identifier != null ? "identifier=" + identifier + ", " : "")
+					+ (group != null ? "group=" + group + ", " : "") + "visible=" + visible + ", modifiable="
+					+ modifiable + ", " + (name != null ? "name=" + name + ", " : "")
+					+ (MIMEtype != null ? "MIMEtype=" + MIMEtype + ", " : "")
+					+ (syntaxHighlighting != null ? "syntaxHighlighting=" + syntaxHighlighting + ", " : "")
+					+ (emphasis != null ? "emphasis=" + emphasis + ", " : "") + (value != null ? "value=" + value : "")
+					+ "]";
+		}
+
 	}
 
 	public static class Routing {
 		public String solutionQueue;
+
+		@Override
+		public String toString() {
+			return "Routing [" + (solutionQueue != null ? "solutionQueue=" + solutionQueue : "") + "]";
+		}
+
 	}
 
 	public static class Wrapper {
@@ -42,5 +60,20 @@ public class Exercise {
 			Exercise = exercise;
 		}
 
+	}
+
+	@Override
+	public String toString() {
+		return "Exercise [" + (postTime != null ? "postTime=" + postTime + ", " : "") + "TTL=" + TTL + ", "
+				+ (identifier != null ? "identifier=" + identifier + ", " : "")
+				+ (department != null ? "department=" + department + ", " : "")
+				+ (comment != null ? "comment=" + comment + ", " : "") + (name != null ? "name=" + name + ", " : "")
+				+ (description != null ? "description=" + description + ", " : "")
+				+ (elements != null ? "elements=" + elements + ", " : "")
+				+ (environment != null ? "environment=" + environment + ", " : "")
+				+ (routing != null ? "routing=" + routing + ", " : "")
+				+ (elementMap != null ? "elementMap=" + elementMap + ", " : "")
+				+ (elementProperties != null ? "elementProperties=" + elementProperties + ", " : "")
+				+ (config != null ? "config=" + config : "") + "]";
 	}
 }
