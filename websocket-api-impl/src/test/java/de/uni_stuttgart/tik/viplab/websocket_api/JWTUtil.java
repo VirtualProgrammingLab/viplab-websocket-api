@@ -33,7 +33,7 @@ public class JWTUtil {
 		} catch (NoSuchAlgorithmException e) {
 			throw new IllegalStateException(e);
 		}
-		return Base64.getUrlEncoder().encodeToString(digest.digest(input.getBytes(StandardCharsets.UTF_8)));
+		return Util.bytesToHex(digest.digest(input.getBytes(StandardCharsets.UTF_8)));
 	}
 	
 	public static String jsonToBase64(JSONObject input) {

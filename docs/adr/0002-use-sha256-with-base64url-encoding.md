@@ -2,7 +2,7 @@
 
 * Status: proposed
 * Deciders: Leon Kiefer
-* Date: 2019-11-07
+* Date: 2019-12-13
 
 ## Context and Problem Statement
 
@@ -49,11 +49,11 @@ The secure channel takes care of the Integrity and the transport.
 
 The json is encoded with Base64Url encoding (RFC 4648).
 The Base64 String is then transferred instead of the raw json.
-For the Base64 string the message digest using SHA256 (FIPS PUB 180-4) is computed and used as verify the integrity.
-The message digest is a sequence of bytes and can be Base64Url encoded to transferred it over a secure channel like JWT.
+For the Base64 string the message digest using SHA256 (FIPS PUB 180-4) is computed and used to verify the integrity.
+The message digest is a sequence of bytes and should be encoded to a lower-case hex string to transfer it over a secure channel like JWT.
 
 * Good, because the Integrity of the json can be verified simply.
-* Good, because only the small Base64 encoded message digest must be transferred over a secure channel.
+* Good, because only the small hex encoded message digest must be transferred over a secure channel.
 * Bad, because the json is transferred Base64 encoded and must be decoded before use.
 * Bad, because this must be implemented by hand.
 

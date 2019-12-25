@@ -78,6 +78,10 @@ public class Result {
 
 	public static class Wrapper {
 		public Result Result;
+		
+		public Wrapper() {
+			
+		}
 
 		public Wrapper(Result result) {
 			Result = result;

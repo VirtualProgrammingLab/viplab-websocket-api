@@ -1,5 +1,7 @@
 package de.uni_stuttgart.tik.viplab.websocket_api;
 
+import static de.uni_stuttgart.tik.viplab.websocket_api.ComputationSession.mustBeAuthenticated;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
@@ -26,6 +28,7 @@ import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSComputationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.AuthenticateMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.CreateComputationMessage;
+import de.uni_stuttgart.tik.viplab.websocket_api.messages.ErrorMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.Message;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageDecoder;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageEncoder;
@@ -35,8 +38,6 @@ import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 
 @ServerEndpoint(value = "/computations", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
 public class ComputationWebSocket {
-	
-	private static String SESSION_JWT = "session.jwt";
 
 	private Jsonb jsonb;
 
@@ -94,35 +95,50 @@ public class ComputationWebSocket {
 	@OnMessage
 	public void onMessage(Message message, Session session) {
 		this.logger.debug("got Message of type {} and content {}", message.type, message.content);
-
-		switch (message.type) {
-		case AuthenticateMessage.MESSAGE_TYPE:
-			this.onAuthentication(fromJsonObject(message.content, AuthenticateMessage.class), session);
-			break;
-		case CreateComputationMessage.MESSAGE_TYPE:
-			this.onCreateComputation(fromJsonObject(message.content, CreateComputationMessage.class), session);
-			break;
-		case SubscribeMessage.MESSAGE_TYPE:
-			this.onSubscribe(fromJsonObject(message.content, SubscribeMessage.class), session);
-			break;
-		default:
-			throw new IllegalArgumentException("Unkown message type: " + message.type);
+		try {
+			switch (message.type) {
+			case AuthenticateMessage.MESSAGE_TYPE:
+				this.onAuthentication(fromJsonObject(message.content, AuthenticateMessage.class), session);
+				break;
+			case CreateComputationMessage.MESSAGE_TYPE:
+				mustBeAuthenticated(session);
+				this.onCreateComputation(fromJsonObject(message.content, CreateComputationMessage.class), session);
+				break;
+			case SubscribeMessage.MESSAGE_TYPE:
+				mustBeAuthenticated(session);
+				this.onSubscribe(fromJsonObject(message.content, SubscribeMessage.class), session);
+				break;
+			default:
+				throw new ComputationWebsocketException("Unkown message type: " + message.type);
+			}
+		} catch (ComputationWebsocketException e) {
+			ErrorMessage errorMessage = new ErrorMessage();
+			errorMessage.message = e.getMessage();
+			send(errorMessage, session);
 		}
 	}
 
 	private void onAuthentication(AuthenticateMessage message, Session session) {
-		if (session.getUserProperties().containsKey(SESSION_JWT)) {
+		if (session.getUserProperties().containsKey(ComputationSession.SESSION_JWT)) {
 			throw new IllegalStateException("JWT is already set.");
 		}
 		DecodedJWT jwt = this.authenticationService.authenticate(message.jwt);
-		session.getUserProperties().put(SESSION_JWT, jwt);
+		session.getUserProperties().put(ComputationSession.SESSION_JWT, jwt);
 	}
 
 	private void onCreateComputation(CreateComputationMessage message, Session session) {
+		try {
+			authenticationService.verify(message.template,
+					ComputationSession.getJWT(session).getClaim("viplab.computation-template.digest").asString());
+		} catch (IllegalArgumentException e) {
+			throw new ComputationWebsocketException("The integrity of the Computation Template can't be verified", e);
+		}
+
 		String templateJson = new String(Base64.getUrlDecoder().decode(message.template), StandardCharsets.UTF_8);
 		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
 		String computationId = computationService.createComputation(template, message.task);
-		ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(), ZonedDateTime.now().plusHours(3), "created");
+		ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(),
+				ZonedDateTime.now().plusHours(3), "created");
 		notificationService.subscribe("computation:" + computationId, session);
 		send(computationMessage, session);
 	}

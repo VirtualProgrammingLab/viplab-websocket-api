@@ -26,6 +26,10 @@ public class Solution {
 	public static class Wrapper {
 
 		public Solution Solution;
+		
+		public Wrapper() {
+			
+		}
 
 		public Wrapper(Solution solution) {
 			Solution = solution;
