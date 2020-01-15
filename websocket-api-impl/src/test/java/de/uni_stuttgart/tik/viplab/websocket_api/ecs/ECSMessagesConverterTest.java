@@ -3,13 +3,37 @@ package de.uni_stuttgart.tik.viplab.websocket_api.ecs;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.stream.Stream;
+
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
+import uk.co.datumedge.hamcrest.json.SameJSONAs;
 
 class ECSMessagesConverterTest {
 
-	private static ECSMessagesConverter sut = new ECSMessagesConverter();
+	private ECSMessagesConverter sut;
+
+	private Jsonb jsonb;
+
+	@BeforeEach
+	private void setup() {
+		sut = new ECSMessagesConverter();
+		sut.setClock(Clock.fixed(Instant.parse("2009-09-16T12:46:48.52Z"), ZoneId.of("UTC")));
+		jsonb = JsonbBuilder.create();
+	}
 
 	@Test
 	void test() {
@@ -17,6 +41,32 @@ class ECSMessagesConverterTest {
 		computationTemplate.environment = "Java";
 		Exercise exercise = sut.convertComputationTemplateToExercise(computationTemplate);
 		assertThat(exercise.config, hasKey("Java"));
+
+	}
+
+	@ParameterizedTest
+	@MethodSource("exampleJsonProvider")
+	void testTemplateTransformation(String templateJson, String exerciseJson) {
+		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
+		Exercise exercise = sut.convertComputationTemplateToExercise(template);
+		String actualExerciseJson = jsonb.toJson(new Exercise.Wrapper(exercise));
+		assertThat(actualExerciseJson, SameJSONAs.sameJSONAs(exerciseJson));
+	}
+
+	private static String loadFile(String fileName) {
+		try {
+			return new String(
+					ECSMessagesConverterTest.class.getClassLoader().getResourceAsStream(fileName).readAllBytes(),
+					StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			throw new IllegalArgumentException(fileName, e);
+		}
+	}
+
+	private static Stream<Arguments> exampleJsonProvider() {
+		return Stream.of("C.check.ex.tp", "Java.ff_10.ex").map(fileName -> {
+			return Arguments.of(loadFile(fileName + ".computation-template.json"), loadFile(fileName + ".json"));
+		});
 	}
 
 }

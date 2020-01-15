@@ -1,0 +1,23 @@
+{
+  "identifier": "Java_HW",
+  "environment": "Java",
+  "files": [
+    {
+      "identifier": "File1",
+      "path": "HelloWorldApp.java",
+      "parts": [
+        {
+          "identifier": "HelloWorldApp",
+          "access": "modifiable",
+          "content": "class HelloWorldApp {\n    public static void main(String[] args) {\n        System.out.println(\"Hello World!\"); // Display the string.\n    }\n}\n"
+        }
+      ]
+    }
+  ],
+  "configuration": {
+    "compiling.flags": "",
+    "checking.allowedCalls": "java.io.* java.lang.*",
+    "checking.forbiddenCalls": "java.io.PrintStream.println",
+    "running.flags": ""
+  }
+}
