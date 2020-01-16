@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
@@ -19,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 import uk.co.datumedge.hamcrest.json.SameJSONAs;
 
@@ -45,7 +47,17 @@ class ECSMessagesConverterTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource("exampleJsonProvider")
+	@MethodSource("exampleTaskJsonProvider")
+	void testTaskTransformation(String taskJson, String solutionJson) {
+		ComputationTask task = jsonb.fromJson(taskJson, ComputationTask.class);
+		URI exerciseURL = URI.create("https://ecs.example.com/exercise/12345");
+		Solution solution = sut.convertComputationTaskToSolution(task, exerciseURL);
+		String actualSolutionJson = jsonb.toJson(new Solution.Wrapper(solution));
+		assertThat(actualSolutionJson, SameJSONAs.sameJSONAs(solutionJson));
+	}
+
+	@ParameterizedTest
+	@MethodSource("exampleTemplateJsonProvider")
 	void testTemplateTransformation(String templateJson, String exerciseJson) {
 		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
 		Exercise exercise = sut.convertComputationTemplateToExercise(template);
@@ -55,18 +67,22 @@ class ECSMessagesConverterTest {
 
 	private static String loadFile(String fileName) {
 		try {
-			return new String(
-					ECSMessagesConverterTest.class.getClassLoader().getResourceAsStream(fileName).readAllBytes(),
+			return new String(ECSMessagesConverterTest.class.getResourceAsStream(fileName).readAllBytes(),
 					StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(fileName, e);
 		}
 	}
 
-	private static Stream<Arguments> exampleJsonProvider() {
-		return Stream.of("C.check.ex.tp", "Java.ff_10.ex").map(fileName -> {
+	private static Stream<Arguments> exampleTemplateJsonProvider() {
+		return Stream.of("C.check.ex.tp", "Java.ff_10.ex", "C.complex.ex").map(fileName -> {
 			return Arguments.of(loadFile(fileName + ".computation-template.json"), loadFile(fileName + ".json"));
 		});
 	}
 
+	private static Stream<Arguments> exampleTaskJsonProvider() {
+		return Stream.of("C.huge.solution", "matlab.ff_1a.solution", "generic.noModifications.solution").map(fileName -> {
+			return Arguments.of(loadFile(fileName + ".computation-task.json"), loadFile(fileName + ".json"));
+		});
+	}
 }

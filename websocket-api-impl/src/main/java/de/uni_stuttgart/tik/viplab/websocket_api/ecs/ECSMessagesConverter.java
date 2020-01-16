@@ -9,13 +9,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.Dependent;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Exercise.Element;
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Solution.ExerciseModifications;
+import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Solution.ModifyElement;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate.File;
@@ -48,7 +49,6 @@ public class ECSMessagesConverter {
 	}
 
 	private Stream<Element> fileToElements(File file) {
-
 		return file.parts.stream().map(part -> {
 			Element element = new Element();
 			element.visible = part.access.equals("visible") || part.access.equals("modifiable");
@@ -63,14 +63,27 @@ public class ECSMessagesConverter {
 	public Solution convertComputationTaskToSolution(ComputationTask task, URI exerciseURL) {
 		try {
 			Solution solution = new Solution();
+			solution.ID = task.identifier;
+			solution.postTime = ZonedDateTime.now(clock).format(DateTimeFormatter.ISO_INSTANT);
 			solution.exercise = exerciseURL;
-			solution.ID = UUID.randomUUID().toString();
+			solution.exerciseModifications = new ExerciseModifications();
+			solution.exerciseModifications.elements = task.files.stream().flatMap(this::fileToModifyElements)
+					.collect(Collectors.toList());
 
 			return solution;
 		} catch (NullPointerException e) {
 			throw new IllegalArgumentException(
 					"The given ComputationTemplate is not valid and can't be converted to a Numlab Exercise.", e);
 		}
+	}
+
+	private Stream<ModifyElement> fileToModifyElements(File file) {
+		return file.parts.stream().map(part -> {
+			ModifyElement element = new ModifyElement();
+			element.identifier = part.identifier;
+			element.value = part.content;
+			return element;
+		});
 	}
 
 	private Map<String, Object> getConfiguration(ComputationTemplate template) {

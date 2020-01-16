@@ -3,8 +3,6 @@ package de.uni_stuttgart.tik.viplab.websocket_api.ecs;
 import java.net.URI;
 import java.util.List;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Exercise.Element;
-
 public class Solution {
 
 	public String postTime;
@@ -20,15 +18,21 @@ public class Solution {
 	}
 
 	public static class ExerciseModifications {
-		public List<Element> elements;
+		public List<ModifyElement> elements;
+	}
+
+	public static class ModifyElement {
+		public String identifier;
+
+		public String value;
 	}
 
 	public static class Wrapper {
 
 		public Solution Solution;
-		
+
 		public Wrapper() {
-			
+
 		}
 
 		public Wrapper(Solution solution) {

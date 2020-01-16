@@ -1,0 +1,34 @@
+{
+  "identifier": "sw",
+  "environment": "Matlab",
+  "files": [
+    {
+      "identifier": "File1",
+      "path": "main.m",
+      "parts": [
+        {
+          "identifier": "codeToBeInterpreted",
+          "access": "modifiable",
+          "content": "function [  ] = fun(  )\n  disp('fun..')\n  foo\n  bar\n  disp('..fun')\nend\n\nfunction [  ] = bar(  )\n  disp('bar (internal)')\nend"
+        }
+      ]
+    },
+    {
+      "identifier": "File2",
+      "path": "foo.m",
+      "parts": [
+        {
+          "identifier": "fooExternal",
+          "access": "modifiable",
+          "content": "function [  ] = foo(  )\n  disp('foo (external)')\nend\n"
+        }
+      ]
+    }
+  ],
+  "configuration": {
+    "merging.sources": [
+      "codeToBeInterpreted"
+    ],
+    "interpreting.flags": ""
+  }
+}
