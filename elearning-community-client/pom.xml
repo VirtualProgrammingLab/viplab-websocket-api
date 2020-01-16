@@ -23,13 +23,6 @@
 			<artifactId>smallrye-reactive-streams-operators</artifactId>
 			<version>1.0.10</version>
 		</dependency>
-		<!-- Workaround for broken rest client from open liberty -->
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-rs-mp-client</artifactId>
-			<version>3.3.4</version>
-			<scope>runtime</scope>
-		</dependency>
 
 		
 		<dependency>
