@@ -36,7 +36,7 @@ public class ECSMessagesConverter {
 			Exercise exercise = new Exercise();
 			exercise.identifier = template.identifier;
 			exercise.postTime = ZonedDateTime.now(clock).format(DateTimeFormatter.ISO_INSTANT);
-			exercise.TTL = (int) Duration.ofHours(3).toSeconds();
+			exercise.TTL = (int) Duration.ofHours(3).getSeconds();
 			exercise.elements = template.files.stream().flatMap(this::fileToElements).collect(Collectors.toList());
 			exercise.elementMap = template.files.stream()
 					.collect(Collectors.toMap(file -> file.identifier, file -> URI.create("file://" + file.path)));

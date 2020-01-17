@@ -1,9 +1,10 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.ecs;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -15,7 +16,6 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -35,15 +35,6 @@ class ECSMessagesConverterTest {
 		sut = new ECSMessagesConverter();
 		sut.setClock(Clock.fixed(Instant.parse("2009-09-16T12:46:48.52Z"), ZoneId.of("UTC")));
 		jsonb = JsonbBuilder.create();
-	}
-
-	@Test
-	void test() {
-		ComputationTemplate computationTemplate = new ComputationTemplate();
-		computationTemplate.environment = "Java";
-		Exercise exercise = sut.convertComputationTemplateToExercise(computationTemplate);
-		assertThat(exercise.config, hasKey("Java"));
-
 	}
 
 	@ParameterizedTest
@@ -66,9 +57,14 @@ class ECSMessagesConverterTest {
 	}
 
 	private static String loadFile(String fileName) {
-		try {
-			return new String(ECSMessagesConverterTest.class.getResourceAsStream(fileName).readAllBytes(),
-					StandardCharsets.UTF_8);
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+				ECSMessagesConverterTest.class.getResourceAsStream(fileName), StandardCharsets.UTF_8))) {
+			StringBuilder builder = new StringBuilder();
+			int c = 0;
+			while ((c = reader.read()) != -1) {
+				builder.append((char) c);
+			}
+			return builder.toString();
 		} catch (IOException e) {
 			throw new IllegalArgumentException(fileName, e);
 		}
@@ -81,8 +77,9 @@ class ECSMessagesConverterTest {
 	}
 
 	private static Stream<Arguments> exampleTaskJsonProvider() {
-		return Stream.of("C.huge.solution", "matlab.ff_1a.solution", "generic.noModifications.solution").map(fileName -> {
-			return Arguments.of(loadFile(fileName + ".computation-task.json"), loadFile(fileName + ".json"));
-		});
+		return Stream.of("C.huge.solution", "matlab.ff_1a.solution", "generic.noModifications.solution")
+				.map(fileName -> {
+					return Arguments.of(loadFile(fileName + ".computation-task.json"), loadFile(fileName + ".json"));
+				});
 	}
 }
