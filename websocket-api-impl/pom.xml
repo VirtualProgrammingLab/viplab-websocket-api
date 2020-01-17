@@ -15,16 +15,28 @@
 	<name>ViPLab WebSocket API</name>
 	<properties>
 		<app.name>websocket-api</app.name>
-		<packaging.type>all</packaging.type>
 		<test.http.port>8081</test.http.port>
 	</properties>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-bom</artifactId>
+				<version>1.4.0.Final</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<!-- Workaround for Beta features -->
+		<!-- <dependency> <groupId>io.smallrye.reactive</groupId> <artifactId>smallrye-reactive-messaging-provider</artifactId> 
+			<version>1.0.9-SNAPSHOT</version> </dependency> -->
 		<dependency>
-			<groupId>io.smallrye.reactive</groupId>
+			<groupId>com.github.smallrye.smallrye-reactive-messaging</groupId>
 			<artifactId>smallrye-reactive-messaging-provider</artifactId>
-			<version>1.0.8</version>
+			<version>05c4db2e1f</version>
 		</dependency>
 		<dependency>
 			<groupId>io.smallrye.reactive</groupId>
@@ -112,13 +124,36 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.5.2</version>
+			<version>${org.junit.jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>5.5.2</version>
+			<version>${org.junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>${org.junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.openliberty.arquillian</groupId>
+			<artifactId>arquillian-liberty-managed-junit</artifactId>
+			<version>1.1.6</version>
+			<type>pom</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.shrinkwrap</groupId>
+			<artifactId>shrinkwrap-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.shrinkwrap.resolver</groupId>
+			<artifactId>shrinkwrap-resolver-impl-maven</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -157,12 +192,6 @@
 			<version>1.4.0</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.github.tomakehurst</groupId>
-			<artifactId>wiremock-jre8</artifactId>
-			<version>2.25.1</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 	<build>
 		<finalName>${app.name}</finalName>
@@ -181,19 +210,55 @@
 				<artifactId>liberty-maven-plugin</artifactId>
 				<configuration>
 					<runtimeArchive>openliberty-all-20.0.0.2-202001141141.zip</runtimeArchive>
-					<serverName>ViPLab-WebSocket-API-Server</serverName>
-					<include>${packaging.type}</include>
+					<serverName>ArquillianManagedServer</serverName>
+					<skipTestServer>true</skipTestServer>
 					<bootstrapProperties>
 						<default.http.port>${test.http.port}</default.http.port>
 						<app.name>${app.name}</app.name>
 						<viplab.jwt.jwks.file>${project.basedir}/jwks.json</viplab.jwt.jwks.file>
+						<viplab.jwt.jwks.file.private.test>${project.basedir}/jwks.private.json</viplab.jwt.jwks.file.private.test>
+						<viplab.jwt.jwks.kid.test>testkeyId</viplab.jwt.jwks.kid.test>
 					</bootstrapProperties>
+					<arquillianProperties>
+						<appDeployTimeout>60</appDeployTimeout>
+					</arquillianProperties>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<id>test-config</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/ArquillianManagedServer/configDropins/overrides</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/test/liberty/config</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M4</version>
+				<configuration>
+					<excludes>
+						<exclude>**/*IntegrationTest</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>3.0.0-M3</version>
+				<version>3.0.0-M4</version>
 				<executions>
 					<execution>
 						<goals>
@@ -202,19 +267,39 @@
 						</goals>
 						<configuration>
 							<includes>
-								<include>**/IT*.java</include>
-								<include>**/*IT.java</include>
+								<include>**/*IntegrationTest.java</include>
 							</includes>
-							<systemPropertyVariables>
-								<liberty.http.port>${test.http.port}</liberty.http.port>
-								<viplab.jwt.jwks.file.private.test>${project.basedir}/jwks.private.json</viplab.jwt.jwks.file.private.test>
-								<viplab.jwt.jwks.kid.test>testkeyId</viplab.jwt.jwks.kid.test>
-								<war.name>${warContext}</war.name>
-							</systemPropertyVariables>
+							<!-- use bootstrapProperties in liberty plugin instead of systemPropertyVariables -->
 							<trimStackTrace>false</trimStackTrace>
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>extract-support-feature</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<artifactItems>
+						<artifactItem>
+							<groupId>io.openliberty.arquillian</groupId>
+							<artifactId>arquillian-liberty-support</artifactId>
+							<version>1.0.4</version>
+							<type>zip</type>
+							<classifier>feature</classifier>
+							<overWrite>false</overWrite>
+							<outputDirectory>${project.build.directory}/liberty/wlp/usr</outputDirectory>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -247,31 +332,10 @@
 							</goals>
 						</execution>
 						<execution>
-							<id>install-apps</id>
-							<phase>package</phase>
-							<goals>
-								<goal>deploy</goal>
-							</goals>
-						</execution>
-						<execution>
-							<id>package-server</id>
-							<phase>package</phase>
-							<goals>
-								<goal>package</goal>
-							</goals>
-						</execution>
-						<execution>
-							<id>test-start</id>
+							<id>configure-arquillian-xml</id>
 							<phase>pre-integration-test</phase>
 							<goals>
-								<goal>test-start</goal>
-							</goals>
-						</execution>
-						<execution>
-							<id>test-stop</id>
-							<phase>post-integration-test</phase>
-							<goals>
-								<goal>test-stop</goal>
+								<goal>configure-arquillian</goal>
 							</goals>
 						</execution>
 					</executions>

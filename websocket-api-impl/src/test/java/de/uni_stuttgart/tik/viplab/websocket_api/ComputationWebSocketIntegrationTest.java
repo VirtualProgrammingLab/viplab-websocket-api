@@ -1,11 +1,10 @@
 package de.uni_stuttgart.tik.viplab.websocket_api;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,107 +12,94 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.ws.rs.core.HttpHeaders;
+import javax.enterprise.inject.Any;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.core.api.annotation.Inject;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.stubbing.Scenario;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Solution;
+import io.smallrye.reactive.messaging.connector.InMemoryConnector;
 import uk.co.datumedge.hamcrest.json.SameJSONAs;
 
-@ExtendWith(MockitoExtension.class)
-class ComputationWebSocketIT {
+@RunWith(Arquillian.class)
+public class ComputationWebSocketIntegrationTest {
 
-	private static String websocketPort = System.getProperty("liberty.http.port");
+	private final static String WARNAME = "test-websocket-api.war";
+	private static String websocketPort = System.getProperty("default.http.port");
 	private static String jwksPath = System.getProperty("viplab.jwt.jwks.file.private.test");
 	private static String kid = System.getProperty("viplab.jwt.jwks.kid.test");
 
-	@Mock
-	MessageHandler massageHandler;
-	private WireMockServer ecs;
+	@Deployment(testable = true)
+	public static WebArchive createDeployment() {
+		// Import Maven runtime dependencies
+		File[] files = Maven.resolver().loadPomFromFile("pom.xml").importRuntimeAndTestDependencies().resolve()
+				.withTransitivity().asFile();
+		WebArchive archive = ShrinkWrap.create(WebArchive.class, WARNAME)
+				.addPackages(true, "de.uni_stuttgart.tik.viplab")
+				.addAsResource("META-INF/microprofile-config.properties").addAsLibraries(files);
+		return archive;
+	}
+
+	private MessageHandler messageHandler;
 
 	private static Algorithm algorithm;
 	private static URI webSocketUri;
 
-	@BeforeAll
+	@Inject
+	@Any
+	private InMemoryConnector connector;
+
+	@BeforeClass
 	public static void setup() throws MalformedURLException, URISyntaxException {
+		System.out.println("kldsjfjlms,cfsklcfskjfksdjflksd");
 		algorithm = JWTUtil.getAlgorithm(Paths.get(jwksPath).toUri().toURL(), kid);
 		webSocketUri = new URI("ws://localhost:" + websocketPort + "/websocket-api/computations");
 	}
 
-	@BeforeEach
-	public void setupWireMockServer() {
-		ecs = new WireMockServer(options().port(8080).useChunkedTransferEncoding(ChunkedEncodingPolicy.NEVER)
-				.extensions(new ResponseTemplateTransformer(false, "computation-id", new Helper<String>() {
-					@Override
-					String apply(String context, com.github.jknack.handlebars.Options options) {
-						return computationID;
-					}
-				})));
-		ecs.start();
-	}
-
-	@AfterEach
-	private void stopWireMockServer() {
-		ecs.stop();
-		ecs = null;
+	@Before
+	@RunAsClient
+	public void setupClient() {
+		System.out.println("kldsjfjlms,cfsklcfskjfksdjflksd - 1");
+		messageHandler = Mockito.mock(MessageHandler.class);
 	}
 
 	@Test
-	void testConnectionIsPossible() throws InterruptedException {
-		TestWebSocket websocket = new TestWebSocket(webSocketUri, massageHandler);
+	@RunAsClient
+	public void testConnectionIsPossible() throws InterruptedException {
+		System.out.println("kldsjfjlms,cfsklcfskjfksdjflksd - 2");
+		TestWebSocket websocket = new TestWebSocket(webSocketUri, messageHandler);
 		assertThat("WebSocket connection to " + webSocketUri, websocket.connectBlocking(1000, TimeUnit.MILLISECONDS));
 	}
 
-	String computationID = null;
-
 	@Test
-	void testCreateComputation() throws Exception {
-
+	public void testCreateComputation() throws Exception {
+		System.out.println("kldsjfjlms,cfsklcfskjfksdjflksd - 3");
 		// stubbing
-		ecs.stubFor(post("/numlab/exercises").inScenario("Create Computation"));
-		ecs.stubFor(post("/numlab/solutions").inScenario("Create Computation").willSetStateTo("Result available"));
-		ecs.stubFor(post("/numlab/results/fifo").inScenario("Create Computation").whenScenarioStateIs(Scenario.STARTED)
-				.willReturn(ResponseDefinitionBuilder.okForEmptyJson()));
-		ecs.stubFor(
-				post("/numlab/results/fifo").inScenario("Create Computation").whenScenarioStateIs("Result available")
-						.willReturn(ResponseDefinitionBuilder.okForJson(TestECSJSONProvider.getResult(new Solution())))
-						.willSetStateTo(Scenario.STARTED));
-		ecs.addMockServiceRequestListener((request, response) -> {
-			if (request.getUrl().contains("/numlab/solutions")) {
-				String id = Json.read(request.getBodyAsString(), Solution.Wrapper.class).Solution.ID;
-				assertThat(id, not(emptyOrNullString()));
-				assertThat(computationID, is(nullValue()));
-				computationID = id;
-			}
-		});
+
 		// create resources
 		String computationTemplate = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate("Java"));
 		String computationTemplateHash = JWTUtil.sha256(computationTemplate);
 		String jwt = JWT.create().withIssuer("test")
 				.withClaim("viplab.computation-template.digest", computationTemplateHash).sign(algorithm);
 		// connection
-		TestWebSocket websocket = new TestWebSocket(webSocketUri, massageHandler);
+		TestWebSocket websocket = new TestWebSocket(webSocketUri, messageHandler);
 		websocket.connectBlocking(1000, TimeUnit.MILLISECONDS);
 		// authenticate
 		websocket.send(TestJSONMessageProvider.getAuthenticationMessage(jwt));
@@ -124,7 +110,7 @@ class ComputationWebSocketIT {
 
 		// verify result
 		ArgumentCaptor<JSONObject> messagesCaptor = ArgumentCaptor.forClass(JSONObject.class);
-		Mockito.verify(massageHandler, Mockito.timeout(1100)).onMessage(messagesCaptor.capture());
+		Mockito.verify(messageHandler, Mockito.timeout(1100)).onMessage(messagesCaptor.capture());
 		List<JSONObject> messages = messagesCaptor.getAllValues();
 		assertThat(messages.get(0), SameJSONAs.sameJSONObjectAs(new JSONObject().put("type", "computation"))
 				.allowingExtraUnexpectedFields());
@@ -135,7 +121,7 @@ class ComputationWebSocketIT {
 	}
 
 	@Test
-	void testAuthenticationIsPerformed() throws InterruptedException, JSONException {
+	public void testAuthenticationIsPerformed() throws InterruptedException, JSONException {
 		// create resources
 		String computationTemplate = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate("Java"));
 		String computationTemplate2 = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate("C"));
@@ -143,7 +129,7 @@ class ComputationWebSocketIT {
 		String jwt = JWT.create().withIssuer("test")
 				.withClaim("viplab.computation-template.digest", computationTemplateHash).sign(algorithm);
 		// connection
-		TestWebSocket websocket = new TestWebSocket(webSocketUri, massageHandler);
+		TestWebSocket websocket = new TestWebSocket(webSocketUri, messageHandler);
 		websocket.connectBlocking(1000, TimeUnit.MILLISECONDS);
 		// authenticate
 		websocket.send(TestJSONMessageProvider.getAuthenticationMessage(jwt));
@@ -152,7 +138,7 @@ class ComputationWebSocketIT {
 		websocket.send(TestJSONMessageProvider.getCreateComputationMessage(computationTemplate2, computationTask));
 		// verify result
 		ArgumentCaptor<JSONObject> messagesCaptor = ArgumentCaptor.forClass(JSONObject.class);
-		Mockito.verify(massageHandler, Mockito.timeout(1000)).onMessage(messagesCaptor.capture());
+		Mockito.verify(messageHandler, Mockito.timeout(1000)).onMessage(messagesCaptor.capture());
 		List<JSONObject> messages = messagesCaptor.getAllValues();
 		assertThat("received one response", messages, hasSize(1));
 		assertThat(messages.get(0),
@@ -161,7 +147,7 @@ class ComputationWebSocketIT {
 		websocket.closeBlocking();
 	}
 
-	private interface MessageHandler {
+	public interface MessageHandler {
 		public void onMessage(JSONObject json);
 	}
 

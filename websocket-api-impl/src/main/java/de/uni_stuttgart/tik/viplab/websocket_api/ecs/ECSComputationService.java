@@ -19,8 +19,8 @@ import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Result.Wrapper;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
+import io.smallrye.reactive.messaging.Emitter;
 import io.smallrye.reactive.messaging.annotations.Channel;
-import io.smallrye.reactive.messaging.annotations.Emitter;
 
 @ApplicationScoped
 public class ECSComputationService {
@@ -60,7 +60,7 @@ public class ECSComputationService {
 	}
 
 	@Incoming("results")
-	public CompletionStage<Void> getMessages(Message<InputStream> message) {
+	public CompletionStage<Void> processResults(Message<InputStream> message) {
 		try {
 			Wrapper fromJson = JsonbBuilder.create().fromJson(message.getPayload(), Result.Wrapper.class);
 			Result result = fromJson.Result;

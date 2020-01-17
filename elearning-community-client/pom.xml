@@ -13,10 +13,15 @@
 
 	<dependencies>
 		<!-- Workaround for Beta features -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>io.smallrye.reactive</groupId>
 			<artifactId>smallrye-reactive-messaging-provider</artifactId>
-			<version>1.0.8</version>
+			<version>1.0.9-SNAPSHOT</version>
+		</dependency>-->
+		<dependency>
+			<groupId>com.github.smallrye.smallrye-reactive-messaging</groupId>
+			<artifactId>smallrye-reactive-messaging-provider</artifactId>
+			<version>05c4db2e1f</version>
 		</dependency>
 		<dependency>
 			<groupId>io.smallrye.reactive</groupId>
@@ -46,6 +51,12 @@
 			<groupId>javax.enterprise.concurrent</groupId>
 			<artifactId>javax.enterprise.concurrent-api</artifactId>
 			<version>1.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.microprofile.config</groupId>
+			<artifactId>microprofile-config-api</artifactId>
+			<version>1.3</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- <dependency> <groupId>org.eclipse.microprofile.reactive.messaging</groupId> 
