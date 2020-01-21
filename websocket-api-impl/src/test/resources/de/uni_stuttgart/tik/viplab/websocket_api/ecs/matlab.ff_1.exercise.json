@@ -1,0 +1,51 @@
+{
+  "Exercise": {
+    "postTime": "2009-09-16T12:46:48.520Z",
+    "identifier": "[Matlab example] simple",
+    "TTL": 10800,
+    "elements": [
+      {
+        "identifier": "preamble",
+        "visible": true,
+        "modifiable": false,
+        "MIMEtype": "text/plain",
+        "value": ""
+      },
+      {
+        "identifier": "codeFromStudent",
+        "visible": true,
+        "modifiable": true,
+        "MIMEtype": "text/plain",
+        "value": "1 + 1\n"
+      },
+      {
+        "identifier": "postscript",
+        "visible": true,
+        "modifiable": false,
+        "MIMEtype": "text/plain",
+        "value": ""
+      }
+    ],
+    "config": {
+      "Matlab": {
+        "merging": {
+          "sources": [
+            "preamble",
+            "codeFromStudent",
+            "postscript"
+          ]
+        },
+        "checking": {
+          "sources": [
+            "codeFromStudent"
+          ],
+          "allowedCalls": "sin cos"
+        },
+        "interpreting": {
+          "flags": ""
+        },
+        "stopAfterPhase": "interpreting"
+      }
+    }
+  }
+}

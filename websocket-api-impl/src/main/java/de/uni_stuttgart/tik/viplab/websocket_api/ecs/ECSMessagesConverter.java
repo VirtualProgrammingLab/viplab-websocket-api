@@ -38,8 +38,10 @@ public class ECSMessagesConverter {
 			exercise.postTime = ZonedDateTime.now(clock).format(DateTimeFormatter.ISO_INSTANT);
 			exercise.TTL = (int) Duration.ofHours(3).getSeconds();
 			exercise.elements = template.files.stream().flatMap(this::fileToElements).collect(Collectors.toList());
-			exercise.elementMap = template.files.stream()
-					.collect(Collectors.toMap(file -> file.identifier, file -> URI.create("file://" + file.path)));
+			if (!(template.environment.equals("Matlab") || template.environment.equals("Octave"))) {
+				exercise.elementMap = template.files.stream()
+						.collect(Collectors.toMap(file -> file.identifier, file -> URI.create("file://" + file.path)));
+			}
 			exercise.config = Collections.singletonMap(template.environment, getConfiguration(template));
 			return exercise;
 		} catch (NullPointerException e) {
@@ -124,9 +126,10 @@ public class ECSMessagesConverter {
 		checking.put("allowedCalls", template.configuration.get("checking.allowedCalls"));
 		config.put("checking", checking);
 		HashMap<String, Object> interpreting = new HashMap<>();
+		interpreting.put("flags", template.configuration.get("interpreting.flags"));
 		interpreting.put("timelimitInSeconds", template.configuration.get("interpreting.timelimitInSeconds"));
-		interpreting.put("stopAfterPhase", "interpreting");
 		config.put("interpreting", interpreting);
+		config.put("stopAfterPhase", "interpreting");
 		return config;
 	}
 

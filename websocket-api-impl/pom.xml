@@ -209,7 +209,9 @@
 				<groupId>io.openliberty.tools</groupId>
 				<artifactId>liberty-maven-plugin</artifactId>
 				<configuration>
-					<runtimeArchive>openliberty-all-20.0.0.2-202001141141.zip</runtimeArchive>
+					<install>
+						<runtimeUrl>https://public.dhe.ibm.com/ibmdl/export/pub/software/openliberty/runtime/nightly/2020-01-21_0810/openliberty-all-20.0.0.2-cl200220200121-0810.zip</runtimeUrl>
+					</install>
 					<serverName>ArquillianManagedServer</serverName>
 					<skipTestServer>true</skipTestServer>
 					<bootstrapProperties>
