@@ -10,6 +10,8 @@ import javax.inject.Inject;
 import javax.json.bind.JsonbBuilder;
 
 import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
@@ -19,8 +21,6 @@ import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Result.Wrapper;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
-import io.smallrye.reactive.messaging.Emitter;
-import io.smallrye.reactive.messaging.annotations.Channel;
 
 @ApplicationScoped
 public class ECSComputationService {

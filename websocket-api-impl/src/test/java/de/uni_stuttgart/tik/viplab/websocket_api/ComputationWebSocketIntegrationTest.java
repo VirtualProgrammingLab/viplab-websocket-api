@@ -35,7 +35,7 @@ import org.mockito.Mockito;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
-import io.smallrye.reactive.messaging.connector.InMemoryConnector;
+import io.smallrye.reactive.messaging.connectors.InMemoryConnector;
 import uk.co.datumedge.hamcrest.json.SameJSONAs;
 
 @RunWith(Arquillian.class)

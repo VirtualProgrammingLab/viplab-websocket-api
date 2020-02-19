@@ -13,15 +13,10 @@
 
 	<dependencies>
 		<!-- Workaround for Beta features -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>io.smallrye.reactive</groupId>
 			<artifactId>smallrye-reactive-messaging-provider</artifactId>
-			<version>1.0.9-SNAPSHOT</version>
-		</dependency>-->
-		<dependency>
-			<groupId>com.github.smallrye.smallrye-reactive-messaging</groupId>
-			<artifactId>smallrye-reactive-messaging-provider</artifactId>
-			<version>05c4db2e1f</version>
+			<version>1.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.smallrye.reactive</groupId>
@@ -29,7 +24,7 @@
 			<version>1.0.10</version>
 		</dependency>
 
-		
+
 		<dependency>
 			<groupId>javax.json.bind</groupId>
 			<artifactId>javax.json.bind-api</artifactId>

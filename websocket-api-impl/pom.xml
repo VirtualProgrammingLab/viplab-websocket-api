@@ -31,12 +31,10 @@
 	</dependencyManagement>
 	<dependencies>
 		<!-- Workaround for Beta features -->
-		<!-- <dependency> <groupId>io.smallrye.reactive</groupId> <artifactId>smallrye-reactive-messaging-provider</artifactId> 
-			<version>1.0.9-SNAPSHOT</version> </dependency> -->
 		<dependency>
-			<groupId>com.github.smallrye.smallrye-reactive-messaging</groupId>
+			<groupId>io.smallrye.reactive</groupId>
 			<artifactId>smallrye-reactive-messaging-provider</artifactId>
-			<version>05c4db2e1f</version>
+			<version>1.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.smallrye.reactive</groupId>
@@ -154,6 +152,12 @@
 		<dependency>
 			<groupId>org.jboss.shrinkwrap.resolver</groupId>
 			<artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.smallrye.reactive</groupId>
+			<artifactId>smallrye-reactive-messaging-in-memory</artifactId>
+			<version>1.1.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
