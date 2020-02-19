@@ -4,7 +4,7 @@ COPY ./ /src
 
 WORKDIR /src
 
-RUN mvn package -Dmaven.test.skip=true
+RUN mvn package -P !development -Dmaven.test.skip=true
 
 FROM open-liberty:kernel-java8-openj9
 
