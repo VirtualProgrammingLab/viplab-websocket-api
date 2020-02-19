@@ -13,8 +13,11 @@ import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import com.auth0.jwk.SigningKeyNotFoundException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 @ApplicationScoped
@@ -36,8 +39,19 @@ public class AuthenticationService {
 		this.rsa = Algorithm.RSA512(new JWKSRSAKeyProvider(url));
 	}
 
+	/**
+	 * Try to authenticate with a JWT.
+	 * 
+	 * @param rawJWT The JWT as encoded string
+	 * @return the decoded JWT with claims if valid
+	 * @throws IllegalArgumentException if the given string is not a valid JWT
+	 */
 	public DecodedJWT authenticate(String rawJWT) {
-		return JWT.require(rsa).build().verify(rawJWT);
+		try {
+			return JWT.require(rsa).build().verify(rawJWT);
+		} catch (JWTVerificationException e) {
+			throw new IllegalArgumentException("The given string is not a valid JWT", e);
+		}
 	}
 
 	/**

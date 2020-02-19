@@ -120,9 +120,15 @@ public class ComputationWebSocket {
 
 	private void onAuthentication(AuthenticateMessage message, Session session) {
 		if (session.getUserProperties().containsKey(ComputationSession.SESSION_JWT)) {
-			throw new IllegalStateException("JWT is already set.");
+			throw new ComputationWebsocketException("JWT is already set.");
 		}
-		DecodedJWT jwt = this.authenticationService.authenticate(message.jwt);
+		DecodedJWT jwt;
+		try {
+			jwt = this.authenticationService.authenticate(message.jwt);
+		} catch (Exception e) {
+			throw new ComputationWebsocketException("JWT is not valid");
+		}
+
 		session.getUserProperties().put(ComputationSession.SESSION_JWT, jwt);
 	}
 

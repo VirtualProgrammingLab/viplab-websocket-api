@@ -26,7 +26,7 @@ public class JWKSRSAKeyProvider implements RSAKeyProvider {
 		try {
 			return (RSAPublicKey) this.provider.get(keyId).getPublicKey();
 		} catch (JwkException e) {
-			throw new IllegalArgumentException(e);
+			return null;
 		}
 	}
 
