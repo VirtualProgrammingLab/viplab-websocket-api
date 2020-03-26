@@ -25,6 +25,8 @@ import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate.File.
 @Dependent
 public class ECSMessagesConverter {
 
+	public static final String MATLAB_MAIN_FILE = "main.m";
+
 	private Clock clock = Clock.systemDefaultZone();
 
 	public void setClock(Clock clock) {
@@ -38,7 +40,10 @@ public class ECSMessagesConverter {
 			exercise.postTime = ZonedDateTime.now(clock).format(DateTimeFormatter.ISO_INSTANT);
 			exercise.TTL = (int) Duration.ofHours(3).getSeconds();
 			exercise.elements = template.files.stream().flatMap(this::fileToElements).collect(Collectors.toList());
-			if (!(template.environment.equals("Matlab") || template.environment.equals("Octave"))) {
+			if (template.environment.equals("Matlab") || template.environment.equals("Octave")) {
+				exercise.elementMap = template.files.stream().filter(file -> !MATLAB_MAIN_FILE.equals(file.path))
+						.collect(Collectors.toMap(file -> file.identifier, file -> URI.create("file://" + file.path)));
+			} else {
 				exercise.elementMap = template.files.stream()
 						.collect(Collectors.toMap(file -> file.identifier, file -> URI.create("file://" + file.path)));
 			}
@@ -112,10 +117,9 @@ public class ECSMessagesConverter {
 	}
 
 	private Map<String, Object> matlabConfig(ComputationTemplate template) {
-		if (template.files.size() != 1) {
-			throw new IllegalArgumentException("The language configuration only allow one file.");
-		}
-		List<Part> parts = template.files.get(0).parts;
+		File main = template.files.stream().filter(file -> MATLAB_MAIN_FILE.equals(file.path)).findFirst().orElseThrow(
+				() -> new IllegalArgumentException("The language configuration must contain a 'main.m' file."));
+		List<Part> parts = main.parts;
 		HashMap<String, Object> config = new HashMap<>();
 		HashMap<String, Object> merging = new HashMap<>();
 		merging.put("sources", parts.stream().map(part -> part.identifier).collect(Collectors.toList()));

@@ -71,7 +71,7 @@ class ECSMessagesConverterTest {
 	}
 
 	private static Stream<Arguments> exampleTemplateJsonProvider() {
-		return Stream.of("C.check.ex.tp", "Java.ff_10.ex", "C.complex.ex", "matlab.ff_1.exercise").map(fileName -> {
+		return Stream.of("C.check.ex.tp", "Java.ff_10.ex", "C.complex.ex", "matlab.ff_1.exercise", "matlab.elementMapOK.ex").map(fileName -> {
 			return Arguments.of(loadFile(fileName + ".computation-template.json"), loadFile(fileName + ".json"));
 		});
 	}
