@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import de.uni_stuttgart.tik.viplab.websocket_api.ecs.ECSComputationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.AuthenticateMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.CreateComputationMessage;
@@ -45,7 +44,7 @@ public class ComputationWebSocket {
 	private AuthenticationService authenticationService;
 
 	@Inject
-	private ECSComputationService computationService;
+	private ViPLabBackendConnector backendConnector;
 
 	@Inject
 	private NotificationService notificationService;
@@ -142,7 +141,7 @@ public class ComputationWebSocket {
 
 		String templateJson = new String(Base64.getUrlDecoder().decode(message.template), StandardCharsets.UTF_8);
 		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
-		String computationId = computationService.createComputation(template, message.task);
+		String computationId = backendConnector.createComputation(template, message.task);
 		ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(),
 				ZonedDateTime.now().plusHours(3), "created");
 		notificationService.subscribe("computation:" + computationId, session);

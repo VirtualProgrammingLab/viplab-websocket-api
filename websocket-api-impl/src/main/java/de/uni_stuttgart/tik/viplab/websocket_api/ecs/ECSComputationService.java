@@ -18,12 +18,13 @@ import org.eclipse.microprofile.reactive.messaging.Message;
 import de.uni_stuttgart.tik.ecs.ecc.ECSDatabaseService;
 import de.uni_stuttgart.tik.viplab.websocket_api.ComputationWebSocket;
 import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService;
+import de.uni_stuttgart.tik.viplab.websocket_api.ViPLabBackendConnector;
 import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Result.Wrapper;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 
 @ApplicationScoped
-public class ECSComputationService {
+public class ECSComputationService implements ViPLabBackendConnector {
 
 	@Inject
 	@Channel("solutions")
@@ -50,6 +51,7 @@ public class ECSComputationService {
 		ecsDatabaseService = new ECSDatabaseService<>(url, username, password, receiverMemberships);
 	}
 
+	@Override
 	public String createComputation(ComputationTemplate template, ComputationTask task) {
 		Exercise exercise = this.converter.convertComputationTemplateToExercise(template);
 		URI exerciseURL = createExercise(exercise);
@@ -75,12 +77,12 @@ public class ECSComputationService {
 		}
 	}
 
-	public URI createExercise(Exercise exercise) {
+	private URI createExercise(Exercise exercise) {
 		System.out.println(Thread.currentThread().getContextClassLoader());
 		return ecsDatabaseService.store(new Exercise.Wrapper(exercise));
 	}
 
-	public void sendSolutions(Solution msg) {
+	private void sendSolutions(Solution msg) {
 		solutions.send(new Solution.Wrapper(msg));
 	}
 
