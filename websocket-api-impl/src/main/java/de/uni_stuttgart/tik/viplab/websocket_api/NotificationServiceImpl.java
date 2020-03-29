@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
-import javax.websocket.Session;
 
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
@@ -23,7 +22,7 @@ import org.eclipse.microprofile.metrics.annotation.Timed;
  * Thread-safe.
  */
 @ApplicationScoped
-public class NotificationService {
+public class NotificationServiceImpl implements NotificationService {
 	private ConcurrentHashMap<String, Set<Session>> subscriptions = new ConcurrentHashMap<>();
 
 	@Resource
@@ -45,6 +44,7 @@ public class NotificationService {
 				.forEach(session -> this.unsubscribe(topic, session)));
 	}
 
+	@Override
 	public void subscribe(String topic, Session session) {
 		subscriptions.compute(topic, (t, sessions) -> {
 			if (sessions == null) {
@@ -55,15 +55,7 @@ public class NotificationService {
 		});
 	}
 
-	/**
-	 * Subscribe the session the the given topic. This method is idempotent.
-	 * 
-	 * @param topic
-	 *            the topic of the subscription, topics can be structured
-	 *            hierarchical by separating the levels using a {@code :}.
-	 * @param session
-	 *            the WebSocket Session.
-	 */
+	@Override
 	public void unsubscribe(String topic, Session session) {
 		subscriptions.compute(topic, (t, sessions) -> {
 			if (sessions != null) {
@@ -76,6 +68,7 @@ public class NotificationService {
 		});
 	}
 
+	@Override
 	public void notify(String topic, Consumer<Session> action) {
 		subscriptions.getOrDefault(topic, Collections.emptySet()).forEach(action);
 	}

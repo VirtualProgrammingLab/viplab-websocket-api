@@ -43,9 +43,10 @@
 		</dependency>
 
 
+
 		<dependency>
 			<groupId>de.uni-stuttgart.tik.viplab</groupId>
-			<artifactId>elearning-community-client</artifactId>
+			<artifactId>internal-extension-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -120,18 +121,6 @@
 			<version>0.11.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>${org.junit.jupiter.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-params</artifactId>
-			<version>${org.junit.jupiter.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
 			<version>${org.junit.jupiter.version}</version>
@@ -170,12 +159,6 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
 			<version>3.1.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest</artifactId>
-			<version>2.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -221,6 +204,29 @@
 		</plugins>
 	</build>
 	<profiles>
+		<profile>
+			<id>ecs-connector</id>
+			<dependencies>
+				<dependency>
+					<groupId>de.uni-stuttgart.tik.viplab</groupId>
+					<artifactId>ecs-connector</artifactId>
+					<version>0.0.1-SNAPSHOT</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>amqp-connector</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>de.uni-stuttgart.tik.viplab</groupId>
+					<artifactId>amqp-connector</artifactId>
+					<version>0.0.1-SNAPSHOT</version>
+				</dependency>
+			</dependencies>
+		</profile>
 		<profile>
 			<id>development</id>
 			<activation>

@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api;
+package de.uni_stuttgart.tik.viplab.websocket_api.misc;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;

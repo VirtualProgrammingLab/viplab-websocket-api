@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
-public class ConfigurationValidatorManager {
+public class ConfigurationValidatorManagerImpl implements ConfigurationValidatorManager {
 
 	@Inject
 	@ConfigProperty(name = "viplab.validation.configuration.mustValidate", defaultValue = "false")
@@ -38,6 +38,7 @@ public class ConfigurationValidatorManager {
 		return configurationValidator.getClass().getAnnotation(Environment.class).value();
 	}
 
+	@Override
 	public boolean isValid(Map<String, Object> configuration, String environment) {
 		ConfigurationValidator configurationValidator = configurationValidators.get(environment);
 		if (configurationValidator == null) {

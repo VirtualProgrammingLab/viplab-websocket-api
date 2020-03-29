@@ -10,6 +10,8 @@ import org.json.JSONObject;
 
 import com.auth0.jwt.algorithms.Algorithm;
 
+import de.uni_stuttgart.tik.viplab.websocket_api.misc.Util;
+
 public class JWTUtil {
 
 	/**

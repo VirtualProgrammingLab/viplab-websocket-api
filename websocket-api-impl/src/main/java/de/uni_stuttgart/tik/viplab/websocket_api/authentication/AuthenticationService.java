@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api;
+package de.uni_stuttgart.tik.viplab.websocket_api.authentication;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,6 +17,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+
+import de.uni_stuttgart.tik.viplab.websocket_api.misc.Util;
 
 @ApplicationScoped
 public class AuthenticationService {

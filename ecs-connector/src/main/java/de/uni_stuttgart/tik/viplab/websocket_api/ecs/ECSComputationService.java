@@ -16,7 +16,6 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
 import de.uni_stuttgart.tik.ecs.ecc.ECSDatabaseService;
-import de.uni_stuttgart.tik.viplab.websocket_api.ComputationWebSocket;
 import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.ViPLabBackendConnector;
 import de.uni_stuttgart.tik.viplab.websocket_api.ecs.Result.Wrapper;
@@ -68,7 +67,7 @@ public class ECSComputationService implements ViPLabBackendConnector {
 			Result result = fromJson.Result;
 
 			notificationService.notify("computation:" + result.Solution.ID, session -> {
-				ComputationWebSocket.send(result, session);
+				session.send(result);
 			});
 			return message.ack();
 		} catch (Exception e) {

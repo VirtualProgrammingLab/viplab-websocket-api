@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api;
+package de.uni_stuttgart.tik.viplab.websocket_api.misc;
 
 public class Util {
 	private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();

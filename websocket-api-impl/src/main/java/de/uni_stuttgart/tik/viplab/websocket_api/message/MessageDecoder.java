@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api.messages;
+package de.uni_stuttgart.tik.viplab.websocket_api.message;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;

@@ -1,4 +1,4 @@
-package de.uni_stuttgart.tik.viplab.websocket_api;
+package de.uni_stuttgart.tik.viplab.websocket_api.authentication;
 
 import java.net.URL;
 import java.security.interfaces.RSAPrivateKey;

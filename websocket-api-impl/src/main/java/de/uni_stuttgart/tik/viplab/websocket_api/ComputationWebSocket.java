@@ -24,13 +24,14 @@ import org.slf4j.Logger;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import de.uni_stuttgart.tik.viplab.websocket_api.authentication.AuthenticationService;
+import de.uni_stuttgart.tik.viplab.websocket_api.message.Message;
+import de.uni_stuttgart.tik.viplab.websocket_api.message.MessageDecoder;
+import de.uni_stuttgart.tik.viplab.websocket_api.message.MessageEncoder;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.AuthenticateMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.CreateComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ErrorMessage;
-import de.uni_stuttgart.tik.viplab.websocket_api.messages.Message;
-import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageDecoder;
-import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageEncoder;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageUtil;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.SubscribeMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
@@ -144,12 +145,12 @@ public class ComputationWebSocket {
 		String computationId = backendConnector.createComputation(template, message.task);
 		ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(),
 				ZonedDateTime.now().plusHours(3), "created");
-		notificationService.subscribe("computation:" + computationId, session);
+		notificationService.subscribe("computation:" + computationId, new WebsocketSessionWrapper(session));
 		send(computationMessage, session);
 	}
 
 	private void onSubscribe(SubscribeMessage subscribeMessage, Session session) {
-		notificationService.subscribe(subscribeMessage.topic, session);
+		notificationService.subscribe(subscribeMessage.topic, new WebsocketSessionWrapper(session));
 	}
 
 	@OnClose
