@@ -20,7 +20,8 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<org.junit.jupiter.version>5.5.2</org.junit.jupiter.version>
+		<org.junit.jupiter.version>5.6.1</org.junit.jupiter.version>
+		<org.mockito.version>3.3.3</org.mockito.version>
 	</properties>
 
 	<!-- Only for github repo snapshots -->
@@ -34,13 +35,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>${org.junit.jupiter.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-params</artifactId>
+			<artifactId>junit-jupiter</artifactId>
 			<version>${org.junit.jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -66,4 +61,20 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>3.0.0-M4</version>
+					<configuration>
+						<excludes>
+							<exclude>**/*IntegrationTest</exclude>
+						</excludes>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

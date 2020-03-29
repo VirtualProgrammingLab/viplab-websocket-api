@@ -28,3 +28,5 @@ Generate test keys for development with [json-web-key-generator](https://github.
 It's available as [docker image](https://hub.docker.com/repository/docker/legion2/json-web-key-generator) on docker hub.
 New keys can be generated with the command `docker run --rm legion2/json-web-key-generator jwk-generator -t RSA -s 2048 -S -p -i testkeyId`.
 The private key should be stored in a file named `jwks.private.json` and the public key in a file named `jwks.json`.
+
+You can generate test data by running `mvn -pl websocket-api-impl -Dtest=de.uni_stuttgart.tik.viplab.websocket_api.GenerateJWTTest test`, this will print the `authenticate` and `create-computation` to the console.

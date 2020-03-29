@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
+import javax.json.bind.JsonbException;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -88,7 +89,11 @@ public class ComputationWebSocket {
 	}
 
 	private <T> T fromJsonObject(Object object, Class<T> type) {
-		return jsonb.fromJson(jsonb.toJson(object), type);
+		try {
+			return jsonb.fromJson(jsonb.toJson(object), type);
+		} catch (JsonbException e) {
+			throw new ComputationWebsocketException("Invalid message", e);
+		}
 	}
 
 	@Counted

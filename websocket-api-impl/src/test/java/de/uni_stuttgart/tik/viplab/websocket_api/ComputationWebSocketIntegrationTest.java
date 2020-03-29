@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,22 +12,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.inject.Any;
+import javax.inject.Inject;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.container.test.api.RunAsClient;
-import org.jboss.arquillian.core.api.annotation.Inject;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -38,24 +29,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import io.smallrye.reactive.messaging.connectors.InMemoryConnector;
 import uk.co.datumedge.hamcrest.json.SameJSONAs;
 
-@RunWith(Arquillian.class)
 public class ComputationWebSocketIntegrationTest {
 
-	private final static String WARNAME = "test-websocket-api.war";
 	private static String websocketPort = System.getProperty("default.http.port");
 	private static String jwksPath = System.getProperty("viplab.jwt.jwks.file.private.test");
 	private static String kid = System.getProperty("viplab.jwt.jwks.kid.test");
-
-	@Deployment(testable = true)
-	public static WebArchive createDeployment() {
-		// Import Maven runtime dependencies
-		File[] files = Maven.resolver().loadPomFromFile("pom.xml").importRuntimeAndTestDependencies().resolve()
-				.withTransitivity().asFile();
-		WebArchive archive = ShrinkWrap.create(WebArchive.class, WARNAME)
-				.addPackages(true, "de.uni_stuttgart.tik.viplab")
-				.addAsResource("META-INF/microprofile-config.properties").addAsLibraries(files);
-		return archive;
-	}
 
 	private MessageHandler messageHandler;
 
@@ -66,22 +44,19 @@ public class ComputationWebSocketIntegrationTest {
 	@Any
 	private InMemoryConnector connector;
 
-	@BeforeClass
 	public static void setup() throws MalformedURLException, URISyntaxException {
 		System.out.println("kldsjfjlms,cfsklcfskjfksdjflksd");
 		algorithm = JWTUtil.getAlgorithm(Paths.get(jwksPath).toUri().toURL(), kid);
 		webSocketUri = new URI("ws://localhost:" + websocketPort + "/websocket-api/computations");
 	}
 
-	@Before
-	@RunAsClient
+	@BeforeEach
 	public void setupClient() {
 		System.out.println("kldsjfjlms,cfsklcfskjfksdjflksd - 1");
 		messageHandler = Mockito.mock(MessageHandler.class);
 	}
 
 	@Test
-	@RunAsClient
 	public void testConnectionIsPossible() throws InterruptedException {
 		System.out.println("kldsjfjlms,cfsklcfskjfksdjflksd - 2");
 		TestWebSocket websocket = new TestWebSocket(webSocketUri, messageHandler);
@@ -94,8 +69,9 @@ public class ComputationWebSocketIntegrationTest {
 		// stubbing
 
 		// create resources
-		String computationTemplate = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate("Java"));
-		String computationTemplateHash = JWTUtil.sha256(computationTemplate);
+		JSONObject computationTemplate = TestJSONMessageProvider.getComputationTemplate("Java");
+		String computationTemplateBase64 = JWTUtil.jsonToBase64(computationTemplate);
+		String computationTemplateHash = JWTUtil.sha256(computationTemplateBase64);
 		String jwt = JWT.create().withIssuer("test")
 				.withClaim("viplab.computation-template.digest", computationTemplateHash).sign(algorithm);
 		// connection
@@ -104,8 +80,8 @@ public class ComputationWebSocketIntegrationTest {
 		// authenticate
 		websocket.send(TestJSONMessageProvider.getAuthenticationMessage(jwt));
 		// create computation
-		JSONObject computationTask = TestJSONMessageProvider.getComputationTask();
-		websocket.send(TestJSONMessageProvider.getCreateComputationMessage(computationTemplate, computationTask));
+		JSONObject computationTask = TestJSONMessageProvider.getComputationTask(computationTemplate);
+		websocket.send(TestJSONMessageProvider.getCreateComputationMessage(computationTemplateBase64, computationTask));
 		// stub the result
 
 		// verify result
@@ -124,7 +100,8 @@ public class ComputationWebSocketIntegrationTest {
 	public void testAuthenticationIsPerformed() throws InterruptedException, JSONException {
 		// create resources
 		String computationTemplate = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate("Java"));
-		String computationTemplate2 = JWTUtil.jsonToBase64(TestJSONMessageProvider.getComputationTemplate("C"));
+		JSONObject computationTemplate2 = TestJSONMessageProvider.getComputationTemplate("C");
+		String computationTemplate2Base64 = JWTUtil.jsonToBase64(computationTemplate2);
 		String computationTemplateHash = JWTUtil.sha256(computationTemplate);
 		String jwt = JWT.create().withIssuer("test")
 				.withClaim("viplab.computation-template.digest", computationTemplateHash).sign(algorithm);
@@ -134,8 +111,9 @@ public class ComputationWebSocketIntegrationTest {
 		// authenticate
 		websocket.send(TestJSONMessageProvider.getAuthenticationMessage(jwt));
 		// try create Task
-		JSONObject computationTask = TestJSONMessageProvider.getComputationTask();
-		websocket.send(TestJSONMessageProvider.getCreateComputationMessage(computationTemplate2, computationTask));
+		JSONObject computationTask = TestJSONMessageProvider.getComputationTask(computationTemplate2);
+		websocket
+				.send(TestJSONMessageProvider.getCreateComputationMessage(computationTemplate2Base64, computationTask));
 		// verify result
 		ArgumentCaptor<JSONObject> messagesCaptor = ArgumentCaptor.forClass(JSONObject.class);
 		Mockito.verify(messageHandler, Mockito.timeout(1000)).onMessage(messagesCaptor.capture());

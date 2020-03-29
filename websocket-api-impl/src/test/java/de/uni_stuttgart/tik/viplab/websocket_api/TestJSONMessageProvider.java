@@ -13,7 +13,7 @@ public class TestJSONMessageProvider {
 
 			computationTemplate.put("identifier", UUID.randomUUID().toString());
 			computationTemplate.put("environment", environment);
-			
+
 			JSONArray files = new JSONArray();
 
 			computationTemplate.put("files", files);
@@ -24,25 +24,31 @@ public class TestJSONMessageProvider {
 		}
 	}
 
-	public static JSONObject getComputationTask() {
-		JSONObject computationTask = new JSONObject();
-		return computationTask;
+	public static JSONObject getComputationTask(JSONObject computationTemplate) {
+		try {
+			JSONObject computationTask = new JSONObject();
+			computationTask.put("identifier", UUID.randomUUID().toString());
+			computationTask.put("template", computationTemplate.get("identifier"));
+			return computationTask;
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * 
-	 * @param computationTemplate
+	 * @param computationTemplateBase64
 	 *            the Base64 encoded computation template
 	 * @param computationTask
 	 *            the computation task
 	 * @return
 	 */
-	public static JSONObject getCreateComputationMessage(String computationTemplate, JSONObject computationTask) {
+	public static JSONObject getCreateComputationMessage(String computationTemplateBase64, JSONObject computationTask) {
 		try {
 			JSONObject createComputationMessage = new JSONObject();
 			createComputationMessage.put("type", "create-computation");
 			JSONObject composition = new JSONObject();
-			composition.put("template", computationTemplate);
+			composition.put("template", computationTemplateBase64);
 			composition.put("task", computationTask);
 			createComputationMessage.put("content", composition);
 			return createComputationMessage;

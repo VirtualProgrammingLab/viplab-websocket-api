@@ -21,6 +21,8 @@ public class AMQPConnector implements ViPLabBackendConnector {
 			throw new IllegalArgumentException(
 					"The ComputationTemplate configuration is not valid for the envrionment of the ComputationTemplate.");
 		}
+		System.out.println("Template: " + template.identifier);
+		System.out.println("Task: " + task.identifier);
 		// TODO
 		return null;
 	}
