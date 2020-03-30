@@ -12,6 +12,23 @@
 	<packaging>jar</packaging>
 
 	<dependencies>
+		<!-- Workaround for Beta features -->
+		<dependency>
+			<groupId>io.smallrye.reactive</groupId>
+			<artifactId>smallrye-reactive-messaging-provider</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.smallrye.reactive</groupId>
+			<artifactId>smallrye-reactive-messaging-amqp</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.smallrye.reactive</groupId>
+			<artifactId>smallrye-reactive-streams-operators</artifactId>
+			<version>1.0.10</version>
+		</dependency>
+
 		<dependency>
 			<groupId>de.uni-stuttgart.tik.viplab</groupId>
 			<artifactId>internal-extension-api</artifactId>
@@ -23,6 +40,11 @@
 			<version>2.0</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>javax.json.bind</groupId>
+			<artifactId>javax.json.bind-api</artifactId>
+			<version>1.0</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 </project>
