@@ -1,0 +1,12 @@
+/target/
+.project
+.settings
+.classpath
+.factorypath
+.idea/
+.DS_Store
+*.versionsBackup
+/.metadata/
+
+jwks.json
+jwks.private.json

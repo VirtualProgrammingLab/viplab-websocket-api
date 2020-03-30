@@ -1,0 +1,44 @@
+{
+  "Exercise": {
+    "postTime": "2009-09-16T12:46:48.520Z",
+    "TTL": 10800,
+    "identifier": "Java_HW",
+    "elementMap": {
+      "File1": "file://HelloWorldApp.java"
+    },
+    "elements": [
+      {
+        "identifier": "HelloWorldApp",
+        "visible": true,
+        "modifiable": true,
+        "MIMEtype": "text/plain",
+        "value": "class HelloWorldApp {\n    public static void main(String[] args) {\n        System.out.println(\"Hello World!\"); // Display the string.\n    }\n}\n"
+      }
+    ],
+    "config": {
+      "Java": {
+        "merging": [
+          {
+            "sources": [
+              "HelloWorldApp"
+            ],
+            "mergeID": "File1"
+          }
+        ],
+        "compiling": {
+          "flags": ""
+        },
+        "checking": {
+          "sources": [
+            "HelloWorldApp"
+          ],
+          "allowedCalls": "java.io.* java.lang.*",
+          "forbiddenCalls": "java.io.PrintStream.println"
+        },
+        "running": {
+          "flags": ""
+        }
+      }
+    }
+  }
+}

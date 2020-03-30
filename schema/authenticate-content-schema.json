@@ -2,10 +2,18 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "authenticate-content-schema.json",
     "title": "Authenticate",
-    "description": "The JWT for authenticate in this WebSocket session",
-    "type": "string",
-    "contentMediaType": "application/jwt",
+    "description": "The authentication information for this WebSocket session",
+    "type": "object",
+    "properties": {
+        "jwt": {
+            "type": "string",
+            "contentMediaType": "application/jwt",
+            "description": "The JWT for authenticate in this WebSocket session"
+        }
+    },
     "examples": [
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        {
+            "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        }
     ]
 }
