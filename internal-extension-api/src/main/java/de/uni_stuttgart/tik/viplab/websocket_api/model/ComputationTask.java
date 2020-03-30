@@ -15,6 +15,9 @@ public class ComputationTask {
 	 * Identifier of the ComputationTemplate used for this Task
 	 */
 	public String template;
+
+	public Map<String, String> arguments;
+
 	public Map<String, Object> metadata;
 	/**
 	 * New or changed files

@@ -19,6 +19,13 @@ public class ComputationTemplate {
 	 */
 	public Map<String, Object> configuration = Collections.emptyMap();
 
+	/**
+	 * Parameters defined here can be given by the ComputationTask as arguments.
+	 * The parameters are can be used to supply values at runtime to the
+	 * configuration of this ComputationTemplate.
+	 */
+	public Map<String, Parameter> parameters = Collections.emptyMap();
+
 	public static class File {
 		/**
 		 * only valid in the context of this ComputationTemplate
@@ -35,13 +42,17 @@ public class ComputationTemplate {
 			 */
 			public String content;
 			public String access;
-			
+
 			public Map<String, Object> metadata;
-			
+
 			public static final String ACCESS_INVISIBLE = "invisible";
 			public static final String ACCESS_VISIBLE = "visible";
 			public static final String ACCESS_MODIFIABLE = "modifiable";
 			public static final String ACCESS_TEMPLATE = "template";
 		}
+	}
+
+	public static class Parameter {
+		public Check check;
 	}
 }
