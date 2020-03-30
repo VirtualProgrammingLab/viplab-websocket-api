@@ -6,18 +6,19 @@ import java.util.Map;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate.File;
 
-public class ComputationTask {
+public class Computation {
 	/**
-	 * The identifier of this Task
+	 * The identifier of this Computation
 	 */
+
+	public String environment;
 	public String identifier;
+
+	public Map<String, Object> configuration;
+
 	/**
-	 * Identifier of the ComputationTemplate used for this Task
-	 */
-	public String template;
-	public Map<String, Object> metadata;
-	/**
-	 * New or changed files
+	 * The files
 	 */
 	public List<File> files = Collections.emptyList();
+
 }

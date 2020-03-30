@@ -26,7 +26,7 @@ public class ComputationTemplate {
 		public String identifier;
 		public String path;
 		public Map<String, Object> metadata;
-		public List<Part> parts;
+		public List<Part> parts = Collections.emptyList();
 
 		public static class Part {
 			public String identifier;
@@ -35,10 +35,13 @@ public class ComputationTemplate {
 			 */
 			public String content;
 			public String access;
-		}
-
-		public enum Access {
-			INVISIBLE, VISIBLE, MODIFIABLE
+			
+			public Map<String, Object> metadata;
+			
+			public static final String ACCESS_INVISIBLE = "invisible";
+			public static final String ACCESS_VISIBLE = "visible";
+			public static final String ACCESS_MODIFIABLE = "modifiable";
+			public static final String ACCESS_TEMPLATE = "template";
 		}
 	}
 }
