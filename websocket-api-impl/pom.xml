@@ -157,7 +157,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<systemPropertyVariables>
-						<viplab.jwt.jwks.file.private.test>${project.basedir}/jwks.private.json</viplab.jwt.jwks.file.private.test>
+						<viplab.jwt.jwks.file.private.test>${project.basedir}/src/test/resources/test-jwks.private.json</viplab.jwt.jwks.file.private.test>
 						<viplab.jwt.jwks.kid.test>testkeyId</viplab.jwt.jwks.kid.test>
 					</systemPropertyVariables>
 				</configuration>
