@@ -27,16 +27,16 @@ public class ECSComputationService implements ViPLabBackendConnector {
 
 	@Inject
 	@Channel("solutions")
-	private Emitter<Object> solutions;
+	Emitter<Object> solutions;
 
 	@Inject
-	private NotificationService notificationService;
+	NotificationService notificationService;
 
 	@Inject
-	private ECSMessagesConverter converter;
+	ECSMessagesConverter converter;
 
 	@Inject
-	private Config config;
+	Config config;
 
 	private ECSDatabaseService<Exercise.Wrapper> ecsDatabaseService;
 
@@ -51,13 +51,12 @@ public class ECSComputationService implements ViPLabBackendConnector {
 	}
 
 	@Override
-	public String createComputation(ComputationTemplate template, ComputationTask task) {
+	public CompletionStage<String> createComputation(ComputationTemplate template, ComputationTask task) {
 		Exercise exercise = this.converter.convertComputationTemplateToExercise(template);
 		URI exerciseURL = createExercise(exercise);
 
 		Solution solution = this.converter.convertComputationTaskToSolution(task, exerciseURL);
-		sendSolutions(solution);
-		return solution.ID;
+		return sendSolutions(solution).thenApply(v -> solution.ID);
 	}
 
 	@Incoming("results")
@@ -81,8 +80,8 @@ public class ECSComputationService implements ViPLabBackendConnector {
 		return ecsDatabaseService.store(new Exercise.Wrapper(exercise));
 	}
 
-	private void sendSolutions(Solution msg) {
-		solutions.send(new Solution.Wrapper(msg));
+	private CompletionStage<Void> sendSolutions(Solution msg) {
+		return solutions.send(new Solution.Wrapper(msg));
 	}
 
 }

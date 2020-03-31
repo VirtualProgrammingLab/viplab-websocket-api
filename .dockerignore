@@ -3,4 +3,4 @@ target
 .git/
 docs/
 schema/
-Dockerfile
+Dockerfile*

@@ -84,7 +84,7 @@ public class ECSMessagesConverter {
 		}
 	}
 
-	private Stream<ModifyElement> fileToModifyElements(File file) {
+	private Stream<ModifyElement> fileToModifyElements(ComputationTask.File file) {
 		return file.parts.stream().map(part -> {
 			ModifyElement element = new ModifyElement();
 			element.identifier = part.identifier;

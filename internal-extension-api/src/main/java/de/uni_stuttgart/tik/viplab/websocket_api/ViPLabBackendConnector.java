@@ -1,5 +1,7 @@
 package de.uni_stuttgart.tik.viplab.websocket_api;
 
+import java.util.concurrent.CompletionStage;
+
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 
@@ -22,5 +24,5 @@ public interface ViPLabBackendConnector {
 	 * @throws IllegalArgumentException
 	 *             if the given template or task are not valid
 	 */
-	String createComputation(ComputationTemplate template, ComputationTask task);
+	CompletionStage<String> createComputation(ComputationTemplate template, ComputationTask task);
 }

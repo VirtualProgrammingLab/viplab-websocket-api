@@ -6,14 +6,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.concurrent.Future;
 
-import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
 import javax.json.bind.JsonbException;
-import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -38,27 +37,22 @@ import de.uni_stuttgart.tik.viplab.websocket_api.messages.SubscribeMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 
 @ServerEndpoint(value = "/computations", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
+@ApplicationScoped
 public class ComputationWebSocket {
 
-	private Jsonb jsonb;
+	private final Jsonb jsonb = JsonbBuilder.create();
 
 	@Inject
-	private AuthenticationService authenticationService;
+	AuthenticationService authenticationService;
 
 	@Inject
-	private ViPLabBackendConnector backendConnector;
+	ViPLabBackendConnector backendConnector;
 
 	@Inject
-	private NotificationService notificationService;
+	NotificationService notificationService;
 
 	@Inject
-	private Logger logger;
-
-	@PostConstruct
-	private void setup() {
-		JsonbConfig jsonbConfig = new JsonbConfig();
-		jsonb = JsonbBuilder.create(jsonbConfig);
-	}
+	Logger logger;
 
 	/**
 	 * Send a message to the remote WebSocket endpoint. The message is encoded
@@ -67,25 +61,20 @@ public class ComputationWebSocket {
 	 * @param message
 	 * @param session
 	 *            the session representing the peer
+	 * @return
 	 * @throws IllegalStateException
 	 *             if the WebSocket is not connected
 	 * @throws IllegalArgumentException
 	 *             if there is something wrong with the message object
 	 */
-	public static void send(Object message, Session session) {
+	public static Future<Void> send(Object message, Session session) {
 		if (session == null) {
 			throw new IllegalStateException("The WebSocket is not open jet.");
 		}
 		Message messageEnvelop = new Message();
 		messageEnvelop.type = MessageUtil.getTypeOfMessageObject(message);
 		messageEnvelop.content = message;
-		try {
-			session.getBasicRemote().sendObject(messageEnvelop);
-		} catch (EncodeException e) {
-			throw new IllegalArgumentException("The message of type " + messageEnvelop.type + " can't be encoded.", e);
-		} catch (IOException e) {
-			throw new IllegalStateException("The message of type " + messageEnvelop.type + " can't be send.", e);
-		}
+		return session.getAsyncRemote().sendObject(messageEnvelop);
 	}
 
 	private <T> T fromJsonObject(Object object, Class<T> type) {
@@ -147,11 +136,12 @@ public class ComputationWebSocket {
 
 		String templateJson = new String(Base64.getUrlDecoder().decode(message.template), StandardCharsets.UTF_8);
 		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
-		String computationId = backendConnector.createComputation(template, message.task);
-		ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(),
-				ZonedDateTime.now().plusHours(3), "created");
-		notificationService.subscribe("computation:" + computationId, new WebsocketSessionWrapper(session));
-		send(computationMessage, session);
+		backendConnector.createComputation(template, message.task).thenAcceptAsync(computationId -> {
+			ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(),
+					ZonedDateTime.now().plusHours(3), "created");
+			notificationService.subscribe("computation:" + computationId, new WebsocketSessionWrapper(session));
+			send(computationMessage, session);
+		});
 	}
 
 	private void onSubscribe(SubscribeMessage subscribeMessage, Session session) {

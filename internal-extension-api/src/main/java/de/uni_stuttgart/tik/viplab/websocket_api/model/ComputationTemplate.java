@@ -27,9 +27,6 @@ public class ComputationTemplate {
 	public Map<String, Parameter> parameters = Collections.emptyMap();
 
 	public static class File {
-		/**
-		 * only valid in the context of this ComputationTemplate
-		 */
 		public String identifier;
 		public String path;
 		public Map<String, Object> metadata;
