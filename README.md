@@ -26,7 +26,16 @@ docker build -t websocket-api .
 ## Development
 Generate test keys for development with [json-web-key-generator](https://github.com/Legion2/json-web-key-generator).
 It's available as [docker image](https://hub.docker.com/repository/docker/legion2/json-web-key-generator) on docker hub.
-New keys can be generated with the command `docker run --rm legion2/json-web-key-generator jwk-generator -t RSA -s 2048 -S -p -i testkeyId`.
+New keys can be generated with the command:
+```
+docker run --rm legion2/json-web-key-generator jwk-generator -t RSA -s 2048 -S -p -i testkeyId
+```
 The private key should be stored in a file named `jwks.private.json` and the public key in a file named `jwks.json`.
+The files must be stored in the `websocket-api-impl` directory.
 
-You can generate test data by running `mvn -pl websocket-api-impl -Dtest=de.uni_stuttgart.tik.viplab.websocket_api.GenerateJWTTest test`, this will print the `authenticate` and `create-computation` to the console.
+You can generate test data by running:
+```
+mvn -pl websocket-api-impl -Dtest=de.uni_stuttgart.tik.viplab.websocket_api.GenerateJWTTest test
+```
+This will print the `authenticate` and `create-computation` json messages to the console.
+These messages can send to the websocket.
