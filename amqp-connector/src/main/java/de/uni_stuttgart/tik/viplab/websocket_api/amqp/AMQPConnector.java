@@ -19,10 +19,10 @@ public class AMQPConnector implements ViPLabBackendConnector {
 
 	@Inject
 	@Channel("computations")
-	private Emitter<String> computations;
+	Emitter<String> computations;
 
 	@Inject
-	private ComputationMerger merger;
+	ComputationMerger merger;
 
 	private Jsonb jsonb = JsonbBuilder.create();
 

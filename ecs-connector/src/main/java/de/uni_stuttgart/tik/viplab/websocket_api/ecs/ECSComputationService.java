@@ -27,16 +27,16 @@ public class ECSComputationService implements ViPLabBackendConnector {
 
 	@Inject
 	@Channel("solutions")
-	private Emitter<Object> solutions;
+	Emitter<Object> solutions;
 
 	@Inject
-	private NotificationService notificationService;
+	NotificationService notificationService;
 
 	@Inject
-	private ECSMessagesConverter converter;
+	ECSMessagesConverter converter;
 
 	@Inject
-	private Config config;
+	Config config;
 
 	private ECSDatabaseService<Exercise.Wrapper> ecsDatabaseService;
 

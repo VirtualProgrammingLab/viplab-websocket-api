@@ -15,7 +15,7 @@ public class ConfigurationTemplateRendererManagerImpl implements ConfigurationTe
 	private final Map<String, ConfigurationTemplateRenderer> configurationTemplateRenderers = new HashMap<>();
 
 	@PostConstruct
-	public void setup() {
+	void setup() {
 		ServiceLoader<ConfigurationTemplateRenderer> serviceLoader = ServiceLoader
 				.load(ConfigurationTemplateRenderer.class);
 		for (ConfigurationTemplateRenderer configurationTemplateRenderer : serviceLoader) {

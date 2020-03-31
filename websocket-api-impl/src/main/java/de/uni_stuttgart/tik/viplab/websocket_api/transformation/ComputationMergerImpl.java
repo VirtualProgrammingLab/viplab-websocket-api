@@ -36,12 +36,11 @@ import de.uni_stuttgart.tik.viplab.websocket_api.validation.InputValidator;
 public class ComputationMergerImpl implements ComputationMerger {
 
 	@Inject
-	private InputValidator inputValidator;
-
+	InputValidator inputValidator;
 	@Inject
-	private ConfigurationValidatorManager configurationValidatorManager;
+	ConfigurationValidatorManager configurationValidatorManager;
 	@Inject
-	private ConfigurationTemplateRendererManager configurationTemplateRendererManager;
+	ConfigurationTemplateRendererManager configurationTemplateRendererManager;
 
 	private final MustacheFactory mf = new DefaultMustacheFactory();
 

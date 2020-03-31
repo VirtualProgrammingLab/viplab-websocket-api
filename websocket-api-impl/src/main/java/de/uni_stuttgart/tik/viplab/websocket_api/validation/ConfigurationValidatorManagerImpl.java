@@ -15,11 +15,11 @@ public class ConfigurationValidatorManagerImpl implements ConfigurationValidator
 
 	@Inject
 	@ConfigProperty(name = "viplab.validation.configuration.mustValidate", defaultValue = "false")
-	private boolean mustValidate;
+	boolean mustValidate;
 	private final Map<String, ConfigurationValidator> configurationValidators = new HashMap<>();
 
 	@PostConstruct
-	public void setup() {
+	void setup() {
 		ServiceLoader<ConfigurationValidator> serviceLoader = ServiceLoader.load(ConfigurationValidator.class);
 		for (ConfigurationValidator configurationValidator : serviceLoader) {
 			String environment = getConfigurationValidatorEnvironment(configurationValidator);

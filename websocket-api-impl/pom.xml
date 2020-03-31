@@ -11,10 +11,8 @@
 
 	<artifactId>websocket-api-impl</artifactId>
 
-	<packaging>war</packaging>
 	<name>ViPLab WebSocket API</name>
 	<properties>
-		<app.name>websocket-api</app.name>
 		<test.http.port>8081</test.http.port>
 	</properties>
 
@@ -24,6 +22,32 @@
 			<artifactId>internal-extension-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-resteasy</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-undertow-websockets</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-jsonp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-jsonb</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-smallrye-metrics</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-scheduler</artifactId>
+		</dependency>
+
+
 		<dependency>
 			<groupId>javax.websocket</groupId>
 			<artifactId>javax.websocket-api</artifactId>
@@ -45,7 +69,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.28</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.enterprise</groupId>
@@ -62,19 +85,12 @@
 		<dependency>
 			<groupId>org.eclipse.microprofile.config</groupId>
 			<artifactId>microprofile-config-api</artifactId>
-			<version>1.3</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.microprofile.metrics</groupId>
 			<artifactId>microprofile-metrics-api</artifactId>
-			<version>2.0</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.7.28</version>
 		</dependency>
 		<dependency>
 			<groupId>com.auth0</groupId>
@@ -101,13 +117,11 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>${org.mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse</groupId>
 			<artifactId>yasson</artifactId>
-			<version>1.0.6</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -123,17 +137,20 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 	<build>
-		<finalName>${app.name}</finalName>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>3.2.2</version>
-				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-					<packagingExcludes>pom.xml</packagingExcludes>
-				</configuration>
+				<groupId>io.quarkus</groupId>
+				<artifactId>quarkus-maven-plugin</artifactId>
+				<version>${quarkus-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -172,65 +189,16 @@
 			</dependencies>
 		</profile>
 		<profile>
-			<id>development</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
+			<id>native</id>
+			<properties>
+				<quarkus.package.type>native</quarkus.package.type>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>io.openliberty.tools</groupId>
-						<artifactId>liberty-maven-plugin</artifactId>
-						<configuration>
-							<runtimeArtifact>
-								<groupId>io.openliberty</groupId>
-								<artifactId>openliberty-kernel</artifactId>
-								<version>20.0.0.2</version>
-								<type>zip</type>
-							</runtimeArtifact>
-
-							<serverName>ArquillianManagedServer</serverName>
-							<skipTestServer>true</skipTestServer>
-							<bootstrapProperties>
-								<default.http.port>${test.http.port}</default.http.port>
-								<app.name>${app.name}</app.name>
-								<viplab.jwt.jwks.file>${project.basedir}/jwks.json</viplab.jwt.jwks.file>
-								<viplab.jwt.jwks.file.private.test>${project.basedir}/jwks.private.json</viplab.jwt.jwks.file.private.test>
-								<viplab.jwt.jwks.kid.test>testkeyId</viplab.jwt.jwks.kid.test>
-							</bootstrapProperties>
-							<jvmOptions>
-								<jvmOption>-Duser.language=en</jvmOption>
-							</jvmOptions>
-							<arquillianProperties>
-								<appDeployTimeout>60</appDeployTimeout>
-							</arquillianProperties>
-						</configuration>
-					</plugin>
-					<plugin>
-						<artifactId>maven-resources-plugin</artifactId>
-						<version>3.0.2</version>
-						<executions>
-							<execution>
-								<id>test-config</id>
-								<phase>pre-integration-test</phase>
-								<goals>
-									<goal>copy-resources</goal>
-								</goals>
-								<configuration>
-									<outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/ArquillianManagedServer/configDropins/overrides</outputDirectory>
-									<resources>
-										<resource>
-											<directory>src/test/liberty/config</directory>
-										</resource>
-									</resources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-failsafe-plugin</artifactId>
-						<version>3.0.0-M4</version>
+						<version>${surefire-plugin.version}</version>
 						<executions>
 							<execution>
 								<goals>
@@ -238,82 +206,14 @@
 									<goal>verify</goal>
 								</goals>
 								<configuration>
-									<includes>
-										<include>**/*IntegrationTest.java</include>
-									</includes>
-									<!-- use bootstrapProperties in liberty plugin instead of systemPropertyVariables -->
-									<trimStackTrace>false</trimStackTrace>
+									<systemProperties>
+										<native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+									</systemProperties>
 								</configuration>
 							</execution>
 						</executions>
 					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>extract-support-feature</id>
-								<phase>pre-integration-test</phase>
-								<goals>
-									<goal>unpack</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>io.openliberty.arquillian</groupId>
-									<artifactId>arquillian-liberty-support</artifactId>
-									<version>1.0.4</version>
-									<type>zip</type>
-									<classifier>feature</classifier>
-									<overWrite>false</overWrite>
-									<outputDirectory>${project.build.directory}/liberty/wlp/usr</outputDirectory>
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</plugin>
 				</plugins>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>io.openliberty.tools</groupId>
-							<artifactId>liberty-maven-plugin</artifactId>
-							<version>3.1</version>
-							<executions>
-								<execution>
-									<id>stop-before-clean</id>
-									<phase>pre-clean</phase>
-									<goals>
-										<goal>stop</goal>
-									</goals>
-								</execution>
-								<execution>
-									<id>create-server</id>
-									<phase>prepare-package</phase>
-									<goals>
-										<goal>install-server</goal>
-										<goal>create</goal>
-									</goals>
-								</execution>
-								<execution>
-									<id>install-feature</id>
-									<phase>prepare-package</phase>
-									<goals>
-										<goal>install-feature</goal>
-									</goals>
-								</execution>
-								<execution>
-									<id>configure-arquillian-xml</id>
-									<phase>pre-integration-test</phase>
-									<goals>
-										<goal>configure-arquillian</goal>
-									</goals>
-								</execution>
-							</executions>
-						</plugin>
-					</plugins>
-				</pluginManagement>
 			</build>
 		</profile>
 	</profiles>

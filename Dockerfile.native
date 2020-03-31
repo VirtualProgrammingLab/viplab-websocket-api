@@ -1,0 +1,14 @@
+FROM quay.io/quarkus/centos-quarkus-maven:19.3.1-java11 AS build
+COPY ./ /usr/src/app
+USER root
+RUN chown -R quarkus /usr/src/app
+USER quarkus
+ARG VIPLAB_CONNECTOR=amqp-connector
+RUN mvn -f /usr/src/app/pom.xml -P native -P ${VIPLAB_CONNECTOR} package -Dmaven.test.skip=true
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+WORKDIR /deployments/
+COPY --from=build /usr/src/app/websocket-api-impl/target/*-runner /deployments/application
+RUN chmod 775 /deployments
+EXPOSE 8080
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]

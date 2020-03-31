@@ -8,12 +8,12 @@ import java.time.ZonedDateTime;
 import java.util.Base64;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.JsonbException;
-import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -38,24 +38,25 @@ import de.uni_stuttgart.tik.viplab.websocket_api.messages.SubscribeMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 
 @ServerEndpoint(value = "/computations", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
+@ApplicationScoped
 public class ComputationWebSocket {
 
 	private Jsonb jsonb;
 
 	@Inject
-	private AuthenticationService authenticationService;
+	AuthenticationService authenticationService;
 
 	@Inject
-	private ViPLabBackendConnector backendConnector;
+	ViPLabBackendConnector backendConnector;
 
 	@Inject
-	private NotificationService notificationService;
+	NotificationService notificationService;
 
 	@Inject
-	private Logger logger;
+	Logger logger;
 
 	@PostConstruct
-	private void setup() {
+	void setup() {
 		JsonbConfig jsonbConfig = new JsonbConfig();
 		jsonb = JsonbBuilder.create(jsonbConfig);
 	}
@@ -79,13 +80,7 @@ public class ComputationWebSocket {
 		Message messageEnvelop = new Message();
 		messageEnvelop.type = MessageUtil.getTypeOfMessageObject(message);
 		messageEnvelop.content = message;
-		try {
-			session.getBasicRemote().sendObject(messageEnvelop);
-		} catch (EncodeException e) {
-			throw new IllegalArgumentException("The message of type " + messageEnvelop.type + " can't be encoded.", e);
-		} catch (IOException e) {
-			throw new IllegalStateException("The message of type " + messageEnvelop.type + " can't be send.", e);
-		}
+		session.getAsyncRemote().sendObject(messageEnvelop);
 	}
 
 	private <T> T fromJsonObject(Object object, Class<T> type) {

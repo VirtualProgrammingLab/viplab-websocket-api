@@ -14,19 +14,8 @@
 	<dependencies>
 		<!-- Workaround for Beta features -->
 		<dependency>
-			<groupId>io.smallrye.reactive</groupId>
-			<artifactId>smallrye-reactive-messaging-provider</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.smallrye.reactive</groupId>
-			<artifactId>smallrye-reactive-messaging-amqp</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.smallrye.reactive</groupId>
-			<artifactId>smallrye-reactive-streams-operators</artifactId>
-			<version>1.0.10</version>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-smallrye-reactive-messaging-amqp</artifactId>
 		</dependency>
 
 		<dependency>

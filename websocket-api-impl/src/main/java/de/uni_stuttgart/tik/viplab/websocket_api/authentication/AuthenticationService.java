@@ -26,10 +26,10 @@ public class AuthenticationService {
 
 	@Inject
 	@ConfigProperty(name = "viplab.jwt.jwks.file")
-	private String jwksPath;
+	String jwksPath;
 
 	@PostConstruct
-	private void setup() {
+	void setup() {
 		URL url;
 		try {
 			url = Paths.get(jwksPath).toUri().toURL();
