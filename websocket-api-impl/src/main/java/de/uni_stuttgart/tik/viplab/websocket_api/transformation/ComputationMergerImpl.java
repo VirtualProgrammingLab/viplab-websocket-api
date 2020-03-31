@@ -103,12 +103,11 @@ public class ComputationMergerImpl implements ComputationMerger {
 	}
 
 	private List<File> mergeFileList(ComputationTemplate template, ComputationTask task) {
-		Map<String, File> filesFromTemplate = createFileIndex(template.files);
-		Map<String, File> filesFromTask = createFileIndex(task.files);
+		Map<String, ComputationTask.File> filesFromTask = createFileIndex(task.files);
 		List<File> files = new ArrayList<>();
-		for (File fileFromTemplate : filesFromTemplate.values()) {
+		for (File fileFromTemplate : template.files) {
 			if (filesFromTask.containsKey(fileFromTemplate.identifier)) {
-				File fileFromTask = filesFromTask.get(fileFromTemplate.identifier);
+				ComputationTask.File fileFromTask = filesFromTask.get(fileFromTemplate.identifier);
 				files.add(merge(fileFromTemplate, fileFromTask));
 			} else {
 				File file = new File();
@@ -118,46 +117,25 @@ public class ComputationMergerImpl implements ComputationMerger {
 				files.add(file);
 			}
 		}
-		for (File fileFromTask : filesFromTask.values()) {
-			if (!filesFromTemplate.containsKey(fileFromTask.identifier)) {
-				File file = new File();
-				file.identifier = fileFromTask.identifier;
-				/**
-				 * The uniqueness of file paths can't be checked here because
-				 * the target file system and structure is not known, see
-				 * java.nio.file.Path#normalize. The path must be checked in the
-				 * backend.
-				 */
-				file.path = fileFromTask.path;
-				file.parts = fileFromTask.parts;
-				files.add(file);
-			}
-		}
 		return files;
 	}
 
-	private File merge(File fileFromTemplate, File fileFromTask) {
+	private File merge(File fileFromTemplate, ComputationTask.File fileFromTask) {
 		File file = new File();
-		Map<String, Part> partsFromTemplate = createPartIndex(fileFromTemplate.parts);
-		Map<String, Part> partsFromTask = createPartIndex(fileFromTask.parts);
+		file.identifier = fileFromTemplate.identifier;
+		file.path = fileFromTemplate.path;
 
+		Map<String, ComputationTask.File.Part> partsFromTask = createPartIndex(fileFromTask.parts);
 		List<Part> parts = new ArrayList<>();
 		for (Part partFromTemplate : fileFromTemplate.parts) {
 			if (partsFromTask.containsKey(partFromTemplate.identifier)) {
-				Part partFromTask = partsFromTask.get(partFromTemplate.identifier);
+				ComputationTask.File.Part partFromTask = partsFromTask.get(partFromTemplate.identifier);
 				parts.add(merge(partFromTemplate, partFromTask));
 			} else {
 				Part part = new Part();
 				part.identifier = partFromTemplate.identifier;
+				part.access = partFromTemplate.access;
 				part.content = partFromTemplate.content;
-				parts.add(part);
-			}
-		}
-		for (Part partFromTask : fileFromTask.parts) {
-			if (!partsFromTemplate.containsKey(partFromTask.identifier)) {
-				Part part = new Part();
-				part.identifier = partFromTask.identifier;
-				part.content = partFromTask.content;
 				parts.add(part);
 			}
 		}
@@ -165,9 +143,10 @@ public class ComputationMergerImpl implements ComputationMerger {
 		return file;
 	}
 
-	private Part merge(Part partFromTemplate, Part partFromTask) {
+	private Part merge(Part partFromTemplate, ComputationTask.File.Part partFromTask) {
 		Part part = new Part();
 		part.identifier = partFromTemplate.identifier;
+		part.access = partFromTemplate.access;
 		switch (partFromTemplate.access) {
 		case Part.ACCESS_INVISIBLE:
 		case Part.ACCESS_VISIBLE:
@@ -186,7 +165,7 @@ public class ComputationMergerImpl implements ComputationMerger {
 		return part;
 	}
 
-	private String renderTemplate(Part partFromTemplate, Part partFromTask) {
+	private String renderTemplate(Part partFromTemplate, ComputationTask.File.Part partFromTask) {
 		String template = new String(Base64.getUrlDecoder().decode(partFromTemplate.content), StandardCharsets.UTF_8);
 		String variablesJson = new String(Base64.getUrlDecoder().decode(partFromTask.content), StandardCharsets.UTF_8);
 		JsonObject variables;
@@ -208,11 +187,11 @@ public class ComputationMergerImpl implements ComputationMerger {
 		return Base64.getUrlEncoder().encodeToString(renderedTemplate.getBytes(StandardCharsets.UTF_8));
 	}
 
-	private Map<String, File> createFileIndex(List<File> files) {
+	private Map<String, ComputationTask.File> createFileIndex(List<ComputationTask.File> files) {
 		return files.stream().collect(Collectors.toMap(file -> file.identifier, file -> file));
 	}
 
-	private Map<String, Part> createPartIndex(List<Part> parts) {
+	private Map<String, ComputationTask.File.Part> createPartIndex(List<ComputationTask.File.Part> parts) {
 		return parts.stream().collect(Collectors.toMap(part -> part.identifier, part -> part));
 	}
 
