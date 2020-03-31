@@ -1,5 +1,7 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.amqp;
 
+import java.util.concurrent.CompletionStage;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
@@ -27,15 +29,13 @@ public class AMQPConnector implements ViPLabBackendConnector {
 	private Jsonb jsonb = JsonbBuilder.create();
 
 	@Override
-	public String createComputation(ComputationTemplate template, ComputationTask task) {
+	public CompletionStage<String> createComputation(ComputationTemplate template, ComputationTask task) {
 		Computation computation = merger.merge(template, task);
 		String computationJson = jsonb.toJson(computation);
-		computations.send(computationJson);
-
-		System.out.println("Template: " + template.identifier);
-		System.out.println("Task: " + task.identifier);
-		System.out.println("Computation: " + computation.identifier);
-		return computation.identifier;
+		
+		return computations.send(computationJson).thenApply(v -> {
+			return computation.identifier;
+		});
 	}
 
 }

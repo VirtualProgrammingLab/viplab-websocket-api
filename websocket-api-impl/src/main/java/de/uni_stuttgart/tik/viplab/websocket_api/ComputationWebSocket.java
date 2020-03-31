@@ -6,13 +6,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.concurrent.Future;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
 import javax.json.bind.JsonbException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -41,7 +40,7 @@ import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 @ApplicationScoped
 public class ComputationWebSocket {
 
-	private Jsonb jsonb;
+	private final Jsonb jsonb = JsonbBuilder.create();
 
 	@Inject
 	AuthenticationService authenticationService;
@@ -55,12 +54,6 @@ public class ComputationWebSocket {
 	@Inject
 	Logger logger;
 
-	@PostConstruct
-	void setup() {
-		JsonbConfig jsonbConfig = new JsonbConfig();
-		jsonb = JsonbBuilder.create(jsonbConfig);
-	}
-
 	/**
 	 * Send a message to the remote WebSocket endpoint. The message is encoded
 	 * in the json format.
@@ -68,19 +61,20 @@ public class ComputationWebSocket {
 	 * @param message
 	 * @param session
 	 *            the session representing the peer
+	 * @return
 	 * @throws IllegalStateException
 	 *             if the WebSocket is not connected
 	 * @throws IllegalArgumentException
 	 *             if there is something wrong with the message object
 	 */
-	public static void send(Object message, Session session) {
+	public static Future<Void> send(Object message, Session session) {
 		if (session == null) {
 			throw new IllegalStateException("The WebSocket is not open jet.");
 		}
 		Message messageEnvelop = new Message();
 		messageEnvelop.type = MessageUtil.getTypeOfMessageObject(message);
 		messageEnvelop.content = message;
-		session.getAsyncRemote().sendObject(messageEnvelop);
+		return session.getAsyncRemote().sendObject(messageEnvelop);
 	}
 
 	private <T> T fromJsonObject(Object object, Class<T> type) {
@@ -142,11 +136,12 @@ public class ComputationWebSocket {
 
 		String templateJson = new String(Base64.getUrlDecoder().decode(message.template), StandardCharsets.UTF_8);
 		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
-		String computationId = backendConnector.createComputation(template, message.task);
-		ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(),
-				ZonedDateTime.now().plusHours(3), "created");
-		notificationService.subscribe("computation:" + computationId, new WebsocketSessionWrapper(session));
-		send(computationMessage, session);
+		backendConnector.createComputation(template, message.task).thenAcceptAsync(computationId -> {
+			ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(),
+					ZonedDateTime.now().plusHours(3), "created");
+			notificationService.subscribe("computation:" + computationId, new WebsocketSessionWrapper(session));
+			send(computationMessage, session);
+		});
 	}
 
 	private void onSubscribe(SubscribeMessage subscribeMessage, Session session) {
