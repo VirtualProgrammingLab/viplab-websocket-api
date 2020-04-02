@@ -3,9 +3,7 @@ package de.uni_stuttgart.tik.viplab.websocket_api.transformation;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
@@ -46,14 +44,9 @@ class ComputationMergerImplTest {
 	}
 
 	private static String loadFile(String fileName) {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-				ComputationMergerImplTest.class.getResourceAsStream(fileName), StandardCharsets.UTF_8))) {
-			StringBuilder builder = new StringBuilder();
-			int c = 0;
-			while ((c = reader.read()) != -1) {
-				builder.append((char) c);
-			}
-			return builder.toString();
+		try {
+			return new String(ComputationMergerImplTest.class.getResourceAsStream(fileName).readAllBytes(),
+					StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(fileName, e);
 		}
