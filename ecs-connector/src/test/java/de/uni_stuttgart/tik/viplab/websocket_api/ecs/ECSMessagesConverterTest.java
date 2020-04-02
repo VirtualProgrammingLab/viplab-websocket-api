@@ -2,9 +2,7 @@ package de.uni_stuttgart.tik.viplab.websocket_api.ecs;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -57,23 +55,21 @@ class ECSMessagesConverterTest {
 	}
 
 	private static String loadFile(String fileName) {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-				ECSMessagesConverterTest.class.getResourceAsStream(fileName), StandardCharsets.UTF_8))) {
-			StringBuilder builder = new StringBuilder();
-			int c = 0;
-			while ((c = reader.read()) != -1) {
-				builder.append((char) c);
-			}
-			return builder.toString();
+		try {
+			return new String(ECSMessagesConverterTest.class.getResourceAsStream(fileName).readAllBytes(),
+					StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(fileName, e);
 		}
 	}
 
 	private static Stream<Arguments> exampleTemplateJsonProvider() {
-		return Stream.of("C.check.ex.tp", "Java.ff_10.ex", "C.complex.ex", "matlab.ff_1.exercise", "matlab.elementMapOK.ex").map(fileName -> {
-			return Arguments.of(loadFile(fileName + ".computation-template.json"), loadFile(fileName + ".json"));
-		});
+		return Stream
+				.of("C.check.ex.tp", "Java.ff_10.ex", "C.complex.ex", "matlab.ff_1.exercise", "matlab.elementMapOK.ex")
+				.map(fileName -> {
+					return Arguments.of(loadFile(fileName + ".computation-template.json"),
+							loadFile(fileName + ".json"));
+				});
 	}
 
 	private static Stream<Arguments> exampleTaskJsonProvider() {
