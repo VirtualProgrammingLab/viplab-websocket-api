@@ -39,6 +39,12 @@ public class ComputationTemplate {
 			 */
 			public String content;
 			public String access;
+			/**
+			 * Only used when access is template. The parameters defined can be
+			 * used in the template and are validated before inserted into the
+			 * template.
+			 */
+			public Map<String, Parameter> parameters = null;
 
 			public Map<String, Object> metadata;
 

@@ -6,11 +6,15 @@ import java.util.ServiceLoader;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.validation.Environment;
 
 @ApplicationScoped
 public class ConfigurationTemplateRendererManagerImpl implements ConfigurationTemplateRendererManager {
+
+	@Inject
+	TemplateRenderer templateRenderer;
 
 	private final Map<String, ConfigurationTemplateRenderer> configurationTemplateRenderers = new HashMap<>();
 
@@ -44,6 +48,6 @@ public class ConfigurationTemplateRendererManagerImpl implements ConfigurationTe
 		if (configurationTemplateRenderer == null) {
 			return configuration;
 		}
-		return configurationTemplateRenderer.render(configuration, arguments);
+		return configurationTemplateRenderer.render(configuration, arguments, templateRenderer);
 	}
 }

@@ -1,7 +1,6 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.transformation;
 
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -18,10 +17,6 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
-
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.model.Computation;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
@@ -41,8 +36,8 @@ public class ComputationMergerImpl implements ComputationMerger {
 	ConfigurationValidatorManager configurationValidatorManager;
 	@Inject
 	ConfigurationTemplateRendererManager configurationTemplateRendererManager;
-
-	private final MustacheFactory mf = new DefaultMustacheFactory();
+	@Inject
+	TemplateRenderer templateRenderer;
 
 	@Override
 	public Computation merge(ComputationTemplate template, ComputationTask task) {
@@ -150,8 +145,8 @@ public class ComputationMergerImpl implements ComputationMerger {
 		switch (partFromTemplate.access) {
 		case Part.ACCESS_INVISIBLE:
 		case Part.ACCESS_VISIBLE:
-			part.content = partFromTemplate.content;
-			break;
+			throw new IllegalArgumentException(
+					"ComputationTask is not allowed to override a part with access: " + partFromTemplate.access);
 		case Part.ACCESS_MODIFIABLE:
 			part.content = partFromTask.content;
 			break;
@@ -173,16 +168,16 @@ public class ComputationMergerImpl implements ComputationMerger {
 			variables = reader.readObject();
 		}
 
-		HashMap<String, Object> scope = new HashMap<>();
-		variables.forEach((name, valueJson) -> {
-			String value = ((JsonString) valueJson).getString();
-			scope.put(name, value);
+		HashMap<String, String> parameters = new HashMap<>();
+		partFromTemplate.parameters.forEach((name, parameter) -> {
+			String value = ((JsonString) variables.get(name)).getString();
+			if (!inputValidator.isValid(value, parameter.check)) {
+				throw new IllegalArgumentException("Argument not valid: " + name);
+			}
+			parameters.put(name, value);
 		});
 
-		Mustache mustache = mf.compile(new StringReader(template), "example");
-		StringWriter writer = new StringWriter();
-		mustache.execute(writer, scope);
-		String renderedTemplate = writer.toString();
+		String renderedTemplate = templateRenderer.renderTemplate(template, parameters);
 
 		return Base64.getUrlEncoder().encodeToString(renderedTemplate.getBytes(StandardCharsets.UTF_8));
 	}

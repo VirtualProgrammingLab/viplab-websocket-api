@@ -17,6 +17,11 @@
 			<artifactId>internal-extension-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>de.uni-stuttgart.tik.viplab</groupId>
+			<artifactId>extensions</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
 		<!-- Quarkus implementations -->
 		<dependency>

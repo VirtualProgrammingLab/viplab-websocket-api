@@ -53,7 +53,7 @@ class ComputationMergerImplTest {
 	}
 
 	private static Stream<Arguments> exampleJsonProvider() {
-		return Stream.of("minimal", "simple").map(fileName -> {
+		return Stream.of("minimal", "simple", "complex").map(fileName -> {
 			return Arguments.of(loadFile(fileName + ".computation-task.json"),
 					loadFile(fileName + ".computation-template.json"), loadFile(fileName + ".computation.json"));
 		});

@@ -1,6 +1,9 @@
 {
     "identifier": "a244e6ea-c417-4b9a-8b0f-3e3c2a284a89",
     "template": "11483f23-95bf-424a-98a5-ee5868c85c3e",
+    "arguments": {
+        "second-argument": "hello_world"
+    },
     "files": [
         {
             "identifier": "11483f23-95bf-424a-98a5-ee5868c85c3e",
@@ -8,6 +11,15 @@
                 {
                     "identifier": "7f0eea11-0ccd-4190-835a-8609a63fcdce",
                     "content": "CQlmb3IgKFN0cmluZyBhcmcgOiBhcmdzKSB7CgkJCVN5c3RlbS5vdXQucHJpbnRsbihhcmcpOwoJCX0"
+                }
+            ]
+        },
+        {
+            "identifier": "a0f896fd-1d6b-4af2-aeb6-ce3d8aad7dd6",
+            "parts": [
+                {
+                    "identifier": "bb987760-32d2-43c7-8715-a6d37dbb5195",
+                    "content": "ewogICAgInJlcGVhdCI6ICIxMCIKfQ"
                 }
             ]
         }
