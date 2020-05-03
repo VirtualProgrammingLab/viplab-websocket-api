@@ -139,8 +139,8 @@ public class ComputationWebSocket {
 		backendConnector.createComputation(template, message.task).thenAcceptAsync(computationId -> {
 			ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(),
 					ZonedDateTime.now().plusHours(3), "created");
-			notificationService.subscribe("computation:" + computationId, new WebsocketSessionWrapper(session));
 			send(computationMessage, session);
+			notificationService.subscribe("computation:" + computationId, new WebsocketSessionWrapper(session));
 		});
 	}
 
