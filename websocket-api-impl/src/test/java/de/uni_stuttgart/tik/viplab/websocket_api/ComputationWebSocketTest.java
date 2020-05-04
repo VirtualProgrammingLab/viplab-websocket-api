@@ -20,8 +20,6 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,6 +28,7 @@ import org.mockito.Mockito;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.reactive.messaging.connectors.InMemoryConnector;
@@ -37,6 +36,7 @@ import io.smallrye.reactive.messaging.connectors.InMemorySink;
 import uk.co.datumedge.hamcrest.json.SameJSONAs;
 
 @QuarkusTest
+@QuarkusTestResource(ViPLabBackendResource.class)
 public class ComputationWebSocketTest {
 	@Inject
 	@ConfigProperty(name = "viplab.jwt.jwks.file.private.test")
@@ -47,23 +47,14 @@ public class ComputationWebSocketTest {
 
 	@TestHTTPResource("/computations")
 	URI webSocketUri;
-	
-    @Inject @Any
-    InMemoryConnector connector;
+
+	@Inject
+	@Any
+	InMemoryConnector connector;
 
 	private MessageHandler messageHandler;
 
 	private Algorithm algorithm;
-	
-    @BeforeAll
-    public static void switchMyChannels() {
-        InMemoryConnector.switchOutgoingChannelsToInMemory("computations");
-    }
-    
-    @AfterAll
-    public static void revertMyChannels() {
-        InMemoryConnector.clear();
-    }
 
 	@BeforeEach
 	void setupClient() throws MalformedURLException, URISyntaxException {
@@ -106,9 +97,11 @@ public class ComputationWebSocketTest {
 		List<JSONObject> messages = messagesCaptor.getAllValues();
 		assertThat(messages.get(0), SameJSONAs.sameJSONObjectAs(new JSONObject().put("type", "computation"))
 				.allowingExtraUnexpectedFields());
-		
-		/*assertThat(messages.get(1),
-				SameJSONAs.sameJSONObjectAs(new JSONObject().put("type", "result")).allowingExtraUnexpectedFields());*/
+
+		/*
+		 * assertThat(messages.get(1), SameJSONAs.sameJSONObjectAs(new
+		 * JSONObject().put("type", "result")).allowingExtraUnexpectedFields());
+		 */
 		// close connection
 		websocket.closeBlocking();
 	}
@@ -141,7 +134,7 @@ public class ComputationWebSocketTest {
 		// close connection
 		websocket.closeBlocking();
 	}
-	
+
 	@Test
 	public void testAuthenticationWorks() throws InterruptedException, JSONException {
 		// create resources
@@ -164,7 +157,6 @@ public class ComputationWebSocketTest {
 		// close connection
 		websocket.closeBlocking();
 	}
-
 
 	public interface MessageHandler {
 		public void onMessage(JSONObject json);
