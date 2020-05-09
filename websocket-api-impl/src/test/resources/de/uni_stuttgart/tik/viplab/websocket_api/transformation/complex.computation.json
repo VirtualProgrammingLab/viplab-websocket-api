@@ -1,19 +1,13 @@
 {
-    "identifier": "11483f23-95bf-424a-98a5-ee5868c85c3e",
+    "identifier": "5032ad45-5d16-45b5-8bf7-44fc60b12edf",
     "environment": "java",
     "configuration": {
-        "running.commandLineArguments": "test input"
-    },
-    "metadata": {
-        "display-name": "Simple example"
+        "running.commandLineArguments": "test hello_world"
     },
     "files": [
         {
             "identifier": "11483f23-95bf-424a-98a5-ee5868c85c3e",
             "path": "main.java",
-            "metadata": {
-                "description": "This is the class with the java main method."
-            },
             "parts": [
                 {
                     "identifier": "a244e6ea-c417-4b9a-8b0f-3e3c2a284a89",
@@ -23,12 +17,23 @@
                 {
                     "identifier": "7f0eea11-0ccd-4190-835a-8609a63fcdce",
                     "access": "modifiable",
-                    "content": ""
+                    "content": "CQlmb3IgKFN0cmluZyBhcmcgOiBhcmdzKSB7CgkJCVN5c3RlbS5vdXQucHJpbnRsbihhcmcpOwoJCX0"
                 },
                 {
                     "identifier": "9471a85b-f10c-49d1-9674-0066c83297c6",
                     "access": "visible",
                     "content": "CX0KfQo"
+                }
+            ]
+        },
+        {
+            "identifier": "a0f896fd-1d6b-4af2-aeb6-ce3d8aad7dd6",
+            "path": "configuration.properties",
+            "parts": [
+                {
+                    "identifier": "bb987760-32d2-43c7-8715-a6d37dbb5195",
+                    "access": "template",
+                    "content": "cmVwZWF0PTEw"
                 }
             ]
         }

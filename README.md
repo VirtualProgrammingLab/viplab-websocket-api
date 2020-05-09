@@ -61,3 +61,13 @@ This will print the `authenticate` and `create-computation` json messages to the
 These messages can send to the websocket.
 
 The generated messages are signed with the internal test Json Web Key from `websocket-api-impl/src/test/resources/test-jwks.private.json`.
+
+### Add new environments/languages
+
+To add support for a new environment add the required classes into the [extensions](extensions/) project.
+The classes must be annotated with `@Environment("<your environment here>")` and be registered as SPI implementation.
+To do this use the `@AutoService(<interface class here>)` annotation.
+
+The following types can be implemented:
+* [ConfigurationValidator](internal-extension-api/src/main/java/de/uni_stuttgart/tik/viplab/websocket_api/validation/ConfigurationValidator.java)
+* [ConfigurationTemplateRenderer](internal-extension-api/src/main/java/de/uni_stuttgart/tik/viplab/websocket_api/transformation/ConfigurationTemplateRenderer.java)

@@ -17,8 +17,8 @@ import com.auth0.jwt.algorithms.Algorithm;
  */
 class GenerateJWTTest {
 
-	private static String jwksPath = System.getProperty("viplab.jwt.jwks.file.private.test");
-	private static String kid = System.getProperty("viplab.jwt.jwks.kid.test");
+	private static String jwksPath = "src/test/resources/test-jwks.private.json";
+	private static String kid = "testkeyId";
 
 	@Test
 	void generateAndPrint() throws MalformedURLException {
