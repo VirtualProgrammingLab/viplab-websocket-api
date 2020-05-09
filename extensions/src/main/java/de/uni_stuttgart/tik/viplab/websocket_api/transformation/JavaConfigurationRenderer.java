@@ -15,7 +15,7 @@ public class JavaConfigurationRenderer implements ConfigurationTemplateRenderer 
 	public Map<String, Object> render(Map<String, Object> configuration, Map<String, String> arguments, TemplateRenderer templateRenderer) {
 		ConfigurationUtil configurationUtil = new ConfigurationUtil(arguments, templateRenderer);
 		// example
-		configurationUtil.renderPropertyTemplate(configuration, "commandLineArguments");
+		configurationUtil.renderPropertyTemplate(configuration, "running.commandLineArguments");
 		
 		return configuration;
 	}

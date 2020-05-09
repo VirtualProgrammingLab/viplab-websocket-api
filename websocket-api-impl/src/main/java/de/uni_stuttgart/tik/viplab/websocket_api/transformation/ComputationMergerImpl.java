@@ -64,7 +64,7 @@ public class ComputationMergerImpl implements ComputationMerger {
 			}
 			String argument = arguments.get(parameterName);
 
-			if (!inputValidator.isValid(argument, parameter.check)) {
+			if (!inputValidator.isValid(argument, parameter.validation)) {
 				throw new IllegalArgumentException("Argument not valid: " + parameterName);
 			}
 
@@ -171,7 +171,7 @@ public class ComputationMergerImpl implements ComputationMerger {
 		HashMap<String, String> parameters = new HashMap<>();
 		partFromTemplate.parameters.forEach((name, parameter) -> {
 			String value = ((JsonString) variables.get(name)).getString();
-			if (!inputValidator.isValid(value, parameter.check)) {
+			if (!inputValidator.isValid(value, parameter.validation)) {
 				throw new IllegalArgumentException("Argument not valid: " + name);
 			}
 			parameters.put(name, value);

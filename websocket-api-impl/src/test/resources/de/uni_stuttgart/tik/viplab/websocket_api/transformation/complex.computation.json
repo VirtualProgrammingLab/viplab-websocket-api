@@ -2,7 +2,7 @@
     "identifier": "5032ad45-5d16-45b5-8bf7-44fc60b12edf",
     "environment": "java",
     "configuration": {
-        "commandLineArguments": "test hello_world"
+        "running.commandLineArguments": "test hello_world"
     },
     "files": [
         {

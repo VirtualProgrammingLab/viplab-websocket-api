@@ -56,6 +56,7 @@ public class ComputationTemplate {
 	}
 
 	public static class Parameter {
-		public Check check;
+		public Validation validation;
+		public Map<String, Object> metadata;
 	}
 }
