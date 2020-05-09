@@ -1,4 +1,4 @@
-# WebSocket API
+# WebSocket API [![Java Tests](https://github.com/VirtualProgrammingLab/viplab-websocket-api/workflows/Java%20Tests/badge.svg)](https://github.com/VirtualProgrammingLab/viplab-websocket-api/actions?query=workflow%3A%22Java+Tests%22)
 ViPLab WebSocket API.
 This is used in the ViPLab frontend to get an interactive session with the ViPLab service.
 
