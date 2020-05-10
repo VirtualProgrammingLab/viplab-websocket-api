@@ -9,9 +9,14 @@ import javax.json.bind.JsonbBuilder;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Message;
 
+import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.ViPLabBackendConnector;
+import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationResultMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.Computation;
+import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 import de.uni_stuttgart.tik.viplab.websocket_api.transformation.ComputationMerger;
@@ -22,6 +27,9 @@ public class AMQPConnector implements ViPLabBackendConnector {
 	@Inject
 	@Channel("computations")
 	Emitter<String> computations;
+
+	@Inject
+	NotificationService notificationService;
 
 	@Inject
 	ComputationMerger merger;
@@ -36,6 +44,21 @@ public class AMQPConnector implements ViPLabBackendConnector {
 		return computations.send(computationJson).thenApply(v -> {
 			return computation.identifier;
 		});
+	}
+
+	@Incoming("results")
+	public CompletionStage<Void> processResults(Message<String> message) {
+		try {
+			ComputationResult result = jsonb.fromJson(message.getPayload(), ComputationResult.class);
+			ComputationResultMessage resultMessage = new ComputationResultMessage(result);
+			notificationService.notify("computation:" + result.computation, session -> {
+				session.send(resultMessage);
+			});
+			return message.ack();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return message.ack();
+		}
 	}
 
 }
