@@ -10,7 +10,7 @@ External services must authorize web clients to the WebSocket API.
 The WebSocket API is stateless and not maintain a user Session with Cookies.
 Only little data should be stored for an open WebSocket connection.
 
-## Decision Drivers <!-- optional -->
+## Decision Drivers
 
 * decoupling of the authorization service and the WebSocket API
 * flexible and well supported on many platforms
@@ -25,20 +25,20 @@ Only little data should be stored for an open WebSocket connection.
 
 Chosen option: "JWT from pre-shared keys", because the WebSocket API is loosely coupled and it is well supported on many platforms.
 
-### Positive Consequences <!-- optional -->
+### Positive Consequences
 
 * Simple to implement
 * Authorization data can be send in a portable and verifiable way
 
-### Negative Consequences <!-- optional -->
+### Negative Consequences
 
 * The shared keys must be handled
 
-## Pros and Cons of the Options <!-- optional -->
+## Pros and Cons of the Options
 
 ### JWT from pre-shared keys
 
-External service and WebSocket API have a pre-shared key.
+External service and WebSocket API have a pre-shared key (this does not mean it's a symmetric key).
 Each external service has it's own pre-shared key to identify it.
 The external services uses the pre-shared key to generate JWTs and add authorization data in the JWT Claims to allow clients access to parts of the WebSocket API.
 
