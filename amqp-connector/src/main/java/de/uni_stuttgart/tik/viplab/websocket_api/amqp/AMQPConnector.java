@@ -2,6 +2,7 @@ package de.uni_stuttgart.tik.viplab.websocket_api.amqp;
 
 import java.util.concurrent.CompletionStage;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
@@ -37,7 +38,8 @@ public class AMQPConnector implements ViPLabBackendConnector {
 
 	private Jsonb jsonb;
 
-	public AMQPConnector() {
+	@PostConstruct
+	public void init() {
 		JsonbConfig config = new JsonbConfig().withDeserializers(new ArtifactDeserializer());
 		jsonb = JsonbBuilder.create(config);
 	}
