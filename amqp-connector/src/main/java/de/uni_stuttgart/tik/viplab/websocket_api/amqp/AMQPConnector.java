@@ -6,6 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
@@ -34,7 +35,12 @@ public class AMQPConnector implements ViPLabBackendConnector {
 	@Inject
 	ComputationMerger merger;
 
-	private Jsonb jsonb = JsonbBuilder.create();
+	private Jsonb jsonb;
+
+	public AMQPConnector() {
+		JsonbConfig config = new JsonbConfig().withDeserializers(new ArtifactDeserializer());
+		jsonb = JsonbBuilder.create(config);
+	}
 
 	@Override
 	public CompletionStage<String> createComputation(ComputationTemplate template, ComputationTask task) {
