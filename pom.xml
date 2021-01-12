@@ -6,7 +6,7 @@
 	<artifactId>websocket-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>ViPLab WebSocket API Parent</name>
+	<name>ViPLab WebSocket API</name>
 	<modules>
 		<module>websocket-api-impl</module>
 		<module>amqp-connector</module>

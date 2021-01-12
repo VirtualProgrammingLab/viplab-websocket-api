@@ -9,7 +9,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>websocket-api-impl</artifactId>
-	<name>ViPLab WebSocket API</name>
+	<name>ViPLab WebSocket API Server</name>
 
 	<dependencies>
 		<dependency>
