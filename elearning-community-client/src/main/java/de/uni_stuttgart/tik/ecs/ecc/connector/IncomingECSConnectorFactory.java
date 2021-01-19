@@ -73,7 +73,7 @@ public class IncomingECSConnectorFactory implements IncomingConnectorFactory, He
 		for (ECSInput<Object> input : inputs) {
 			running &= input.isRunning();
 		}
-		return HealthCheckResponse.named("ECS Polling connections").state(running).build();
+		return HealthCheckResponse.named("ECS Polling connections").status(running).build();
 	}
 
 }

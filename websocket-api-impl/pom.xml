@@ -9,7 +9,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>websocket-api-impl</artifactId>
-	<name>ViPLab WebSocket API</name>
+	<name>ViPLab WebSocket API Server</name>
 
 	<dependencies>
 		<dependency>
@@ -96,24 +96,24 @@
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>3.10.3</version>
+			<version>3.12.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>jwks-rsa</artifactId>
-			<version>0.12.0</version>
+			<version>0.15.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.spullara.mustache.java</groupId>
 			<artifactId>compiler</artifactId>
-			<version>0.9.6</version>
+			<version>0.9.7</version>
 		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>io.smallrye.reactive</groupId>
 			<artifactId>smallrye-reactive-messaging-in-memory</artifactId>
-			<version>2.2.1</version>
+			<version>2.7.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
