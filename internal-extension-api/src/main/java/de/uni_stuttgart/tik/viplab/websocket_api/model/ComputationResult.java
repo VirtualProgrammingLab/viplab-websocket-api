@@ -3,8 +3,11 @@ package de.uni_stuttgart.tik.viplab.websocket_api.model;
 import java.util.Collections;
 import java.util.List;
 
+import javax.validation.constraints.NotBlank;
+
 public class ComputationResult {
 
+	@NotBlank
 	public String identifier;
 
 	public String version;
@@ -12,7 +15,7 @@ public class ComputationResult {
 	/**
 	 * The identifier of corresponding Computation
 	 */
-
+	@NotBlank
 	public String computation;
 
 	public String status;
