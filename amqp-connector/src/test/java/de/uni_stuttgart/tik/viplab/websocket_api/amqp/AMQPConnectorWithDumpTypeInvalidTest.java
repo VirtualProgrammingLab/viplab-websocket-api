@@ -8,10 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -25,7 +23,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit5.EnableWeld;
@@ -198,22 +195,17 @@ class AMQPConnectorWithDumpTypeInvalidTest {
               // TODO add proper testing code for the value of the message
             });
     verify(session).send(Mockito.isA(ErrorMessage.class));
-    List<String> files = null;
+    List<Path> files = null;
     try (Stream<Path> stream = Files.list(sharedTempDir)) {
       files = stream.filter(file -> !Files.isDirectory(file))
-              .map(Path::getFileName)
-              .map(Path::toString)
               .collect(Collectors.toList());
     }
     assertEquals(1,
             files.size());
-    File dumpFile = new File(sharedTempDir.toFile(), files.get(0));
-    String fileContent = FileUtils.readFileToString(dumpFile,
-            StandardCharsets.UTF_8);
     assertEquals(messagePayload,
-            fileContent);
+            Files.readString(files.get(0)));
     assertEquals(true,
-            FileUtils.deleteQuietly(dumpFile));
+            Files.deleteIfExists(files.get(0)));
     verify(logger,
             never()).error(any());
     verify(logger,
@@ -230,22 +222,17 @@ class AMQPConnectorWithDumpTypeInvalidTest {
     verify(notificationService,
             never()).notify(null,
                     null);// notify(eq("computation:asdfasfd"),
-    List<String> files = null;
+    List<Path> files = null;
     try (Stream<Path> stream = Files.list(sharedTempDir)) {
       files = stream.filter(file -> !Files.isDirectory(file))
-              .map(Path::getFileName)
-              .map(Path::toString)
               .collect(Collectors.toList());
     }
     assertEquals(1,
             files.size());
-    File dumpFile = new File(sharedTempDir.toFile(), files.get(0));
-    String fileContent = FileUtils.readFileToString(dumpFile,
-            StandardCharsets.UTF_8);
     assertEquals(messagePayload,
-            fileContent);
+            Files.readString(files.get(0)));
     assertEquals(true,
-            FileUtils.deleteQuietly(dumpFile));
+            Files.deleteIfExists(files.get(0)));
   }
 
   @Test
@@ -258,22 +245,17 @@ class AMQPConnectorWithDumpTypeInvalidTest {
     verify(logger,
             times(1)).error(eq("Invalid json received: {}"),
                     any(String.class));
-    List<String> files = null;
+    List<Path> files = null;
     try (Stream<Path> stream = Files.list(sharedTempDir)) {
       files = stream.filter(file -> !Files.isDirectory(file))
-              .map(Path::getFileName)
-              .map(Path::toString)
               .collect(Collectors.toList());
     }
     assertEquals(1,
             files.size());
-    File dumpFile = new File(sharedTempDir.toFile(), files.get(0));
-    String fileContent = FileUtils.readFileToString(dumpFile,
-            StandardCharsets.UTF_8);
     assertEquals(messagePayload,
-            fileContent);
+            Files.readString(files.get(0)));
     assertEquals(true,
-            FileUtils.deleteQuietly(dumpFile));
+            Files.deleteIfExists(files.get(0)));
   }
 
 }

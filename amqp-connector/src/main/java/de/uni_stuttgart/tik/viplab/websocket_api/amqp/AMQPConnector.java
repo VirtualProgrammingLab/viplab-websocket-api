@@ -1,9 +1,11 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.amqp;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
@@ -67,7 +69,7 @@ public class AMQPConnector implements ViPLabBackendConnector {
 
   private Jsonb jsonb;
 
-  private File dumpDirectory;
+  private Path dumpDirectory;
 
   @PostConstruct
   public void init() {
@@ -75,8 +77,8 @@ public class AMQPConnector implements ViPLabBackendConnector {
     jsonb = JsonbBuilder.create(config);
     if (DumpType.Invalid == dumpMessages || DumpType.All == dumpMessages) {
       if (dumpDirectoryConfig.isPresent()) {
-        dumpDirectory = new File(dumpDirectoryConfig.get());
-        if (!dumpDirectory.isDirectory()) {
+        dumpDirectory = Paths.get(dumpDirectoryConfig.get());
+        if (!Files.isDirectory(dumpDirectory)) {
           logger.error("Dumpdirectory {} is not a directory, dumping is being disabled");
           dumpMessages = DumpType.None;
         }
@@ -101,7 +103,6 @@ public class AMQPConnector implements ViPLabBackendConnector {
   @Incoming("results")
   public CompletionStage<Void> processResults(Message<String> message) {
     try {
-      UUID uuid = UUID.randomUUID();
       ComputationResult result = jsonb.fromJson(message.getPayload(),
               ComputationResult.class);
       if (validator.validate(result)
@@ -111,15 +112,22 @@ public class AMQPConnector implements ViPLabBackendConnector {
                 session -> {
                   session.send(resultMessage);
                 });
-        logger.debug("Send result message(result id:{} for computation {}: {}",
-                result.identifier,
-                result.computation,
-                uuid.toString());
         if (DumpType.All == dumpMessages) {
+          UUID uuid = UUID.randomUUID();
+          logger.debug("Send result message(result id:{} for computation {}. Content-id: {})",
+                  result.identifier,
+                  result.computation,
+                  uuid.toString());
           dumpMessage(uuid.toString(),
                   message);
+        } else {
+          logger.debug("Send result message(result id:{} for computation {})",
+                  result.identifier,
+                  result.computation);
         }
+
       } else {
+        String computationId = null;
         if (StringUtils.isNotBlank(result.computation)) {
           ErrorMessage em = new ErrorMessage();
           em.message = message.getPayload();
@@ -128,14 +136,22 @@ public class AMQPConnector implements ViPLabBackendConnector {
                   session -> {
                     session.send(em);
                   });
-          logger.error("Error validating result object, but found computationid {}: {}",
-                  result.computation,
-                  uuid.toString());
+          computationId = result.computation;
+        } else {
+          computationId = "__unset__";
         }
         if (DumpType.Invalid == dumpMessages || DumpType.All == dumpMessages) {
+          UUID uuid = UUID.randomUUID();
+          logger.error("Error validating result object, but found computationid {}. Content-id: {}",
+                  computationId,
+                  uuid.toString());
           dumpMessage(uuid.toString(),
                   message);
+        } else {
+          logger.error("Error validating result object. Computation-Id: {}",
+                  computationId);
         }
+
       }
     } catch (JsonbException ex) {
       UUID uuid = UUID.randomUUID();
@@ -150,17 +166,18 @@ public class AMQPConnector implements ViPLabBackendConnector {
   }
 
   private void dumpMessage(String uuid, Message<String> message) {
-    File outfile = new File(dumpDirectory, uuid + ".message");
-    FileWriter fw = null;
+    Path outfile = dumpDirectory.resolve(uuid + ".message");
+    BufferedWriter writer = null;
     try {
-      fw = new FileWriter(outfile);
-      fw.write(message.getPayload());
+      writer = Files.newBufferedWriter(outfile,
+              StandardCharsets.UTF_8);
+      writer.write(message.getPayload());
     } catch (IOException e) {
       logger.warn("Error writing message to dumpfile");
     } finally {
-      if (fw != null) {
+      if (writer != null) {
         try {
-          fw.close();
+          writer.close();
         } catch (IOException e) {
           e.printStackTrace();
         }
