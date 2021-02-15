@@ -1,5 +1,7 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.model;
 
+import java.net.URL;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class ComputationResult {
 
 	public String status;
 
-	public String timestamp;
+	public ZonedDateTime timestamp;
 
 	public Output output;
 
@@ -71,4 +73,17 @@ public class ComputationResult {
 		public String MIMEtype;
 		public String content;
 	}
+
+  public static class S3File extends Artifact {
+    public S3File() {
+      type = TYPE.s3file;
+    }
+
+    public String path;
+    public String MIMEtype;
+    public URL url;
+    public long size;
+    public String hash;
+
+  }
 }
