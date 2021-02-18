@@ -12,7 +12,8 @@ import javax.json.stream.JsonParser;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.Artifact;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.File;
-import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.Notifications;;
+import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.Notifications;
+import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.S3File;;
 
 public class ArtifactDeserializer implements JsonbDeserializer<Artifact> {
 
@@ -29,6 +30,8 @@ public class ArtifactDeserializer implements JsonbDeserializer<Artifact> {
 			return jsonb.fromJson(jsonString, File.class);
 		case "notifications":
 			return jsonb.fromJson(jsonString, Notifications.class);
+		case "s3file":
+		  return jsonb.fromJson(jsonString, S3File.class);
 		default:
 			throw new JsonbException("Unknown type: " + type);
 		}
