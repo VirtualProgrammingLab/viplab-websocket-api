@@ -6,9 +6,14 @@ USER quarkus
 ARG VIPLAB_CONNECTOR=amqp-connector
 RUN mvn -f /usr/src/app/pom.xml -P native -P ${VIPLAB_CONNECTOR} package -Dmaven.test.skip=true
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
 WORKDIR /deployments/
-COPY --from=build /usr/src/app/websocket-api-impl/target/*-runner /deployments/application
-RUN chmod 775 /deployments
+RUN chown 1001 /deployments \
+    && chmod "g+rwX" /deployments \
+    && chown 1001:root /deployments
+COPY --from=build --chown=1001:root /usr/src/app/websocket-api-impl/target/*-runner /deployments/application
+
 EXPOSE 8080
+USER 1001
+
 CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
