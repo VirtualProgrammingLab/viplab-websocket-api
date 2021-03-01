@@ -54,9 +54,4 @@ public class ComputationTemplate {
 			public static final String ACCESS_TEMPLATE = "template";
 		}
 	}
-
-	public static class Parameter {
-		public Validation validation;
-		public Map<String, Object> metadata;
-	}
 }
