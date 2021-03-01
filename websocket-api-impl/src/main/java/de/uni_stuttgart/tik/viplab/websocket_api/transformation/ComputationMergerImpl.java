@@ -23,15 +23,15 @@ import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate.File;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate.File.Part;
-import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate.Parameter;
+import de.uni_stuttgart.tik.viplab.websocket_api.model.Parameter;
 import de.uni_stuttgart.tik.viplab.websocket_api.validation.ConfigurationValidatorManager;
-import de.uni_stuttgart.tik.viplab.websocket_api.validation.InputValidator;
+import de.uni_stuttgart.tik.viplab.websocket_api.validation.ParameterValidator;
 
 @ApplicationScoped
 public class ComputationMergerImpl implements ComputationMerger {
 
 	@Inject
-	InputValidator inputValidator;
+	ParameterValidator parameterValidator;
 	@Inject
 	ConfigurationValidatorManager configurationValidatorManager;
 	@Inject
@@ -64,7 +64,7 @@ public class ComputationMergerImpl implements ComputationMerger {
 			}
 			String argument = arguments.get(parameterName);
 
-			if (!inputValidator.isValid(argument, parameter.validation)) {
+			if (!parameterValidator.isValid(argument, parameter)) {
 				throw new IllegalArgumentException("Argument not valid: " + parameterName);
 			}
 
@@ -171,7 +171,7 @@ public class ComputationMergerImpl implements ComputationMerger {
 		HashMap<String, String> parameters = new HashMap<>();
 		partFromTemplate.parameters.forEach((name, parameter) -> {
 			String value = ((JsonString) variables.get(name)).getString();
-			if (!inputValidator.isValid(value, parameter.validation)) {
+			if (!parameterValidator.isValid(value, parameter)) {
 				throw new IllegalArgumentException("Argument not valid: " + name);
 			}
 			parameters.put(name, value);
