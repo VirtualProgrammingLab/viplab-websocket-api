@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.inject.Any;
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -159,15 +160,15 @@ public class ComputationWebSocketTest {
 	}
 
 	public interface MessageHandler {
-		public void onMessage(JSONObject json);
+		void onMessage(JSONObject json);
 	}
 
-	private class TestWebSocket extends WebSocketClient {
+	private static class TestWebSocket extends WebSocketClient {
 
-		private MessageHandler function;
+		private final MessageHandler function;
 
 		public TestWebSocket(URI serverUri, MessageHandler function) {
-			super(serverUri);
+			super(UriBuilder.fromUri(serverUri).scheme("ws").build());
 			this.function = function;
 		}
 
