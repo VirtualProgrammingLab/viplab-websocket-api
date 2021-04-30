@@ -33,10 +33,10 @@ docker run --rm -it -p 8080:8080 -e JWKS_FILE=/config/jwks.json -v "${PWD}/jwks.
 
 ### Generate Json Web Keys
 Generate keys with [json-web-key-generator](https://github.com/Legion2/json-web-key-generator).
-It's available as [docker image](https://hub.docker.com/repository/docker/legion2/json-web-key-generator) on docker hub.
+It's available as [docker image](https://github.com/users/Legion2/packages/container/package/json-web-key-generator) in GitHub Container Registry.
 New keys can be generated with the command:
 ```
-docker run --rm legion2/json-web-key-generator jwk-generator -t RSA -s 2048 -S -p -i mykeyid
+docker run --rm ghcr.io/legion2/json-web-key-generator jwk-generator -t RSA -s 2048 -S -p -i mykeyid
 ```
 The private key should be stored in a file named `jwks.private.json` and the public key in a file named `jwks.json`.
 
