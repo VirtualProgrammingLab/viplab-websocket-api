@@ -5,5 +5,5 @@ updates:
     schedule:
       interval: "weekly"
     ignore:
-      -  dependency_name: "org.jboss.weld:weld-junit5"
-         version_requirement: "2.x"
+      -  dependency-name: "org.jboss.weld:weld-junit5"
+         update-types: ["version-update:semver-major"]
