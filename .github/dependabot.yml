@@ -4,3 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      ignored_updates:
+       - match:
+          dependency_name: "org.jboss.weld:weld-junit5"
+          version_requirement: "2.x"
