@@ -10,10 +10,8 @@
 	<modules>
 		<module>websocket-api-impl</module>
 		<module>amqp-connector</module>
-		<module>ecs-connector</module>
 		<module>internal-extension-api</module>
 		<module>extensions</module>
-		<module>elearning-community-client</module>
 	</modules>
 
 	<properties>

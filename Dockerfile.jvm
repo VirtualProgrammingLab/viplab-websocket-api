@@ -1,8 +1,7 @@
 FROM maven:3.6.3-jdk-11 AS builder
 COPY ./ /src
 WORKDIR /src
-ARG VIPLAB_CONNECTOR=amqp-connector
-RUN mvn package -P ${VIPLAB_CONNECTOR} -Dmaven.test.skip=true
+RUN mvn package -Dmaven.test.skip=true
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
 

@@ -8,14 +8,6 @@ Architectural Decision are documented as Markdown Architectural Decision Records
 
 The schemata of the messages are defined in [schema](schema).
 
-## Select ViPLab Backend Connector
-There are two connectors you can choose from:
-* ecs-connector
-* amqp-connector
-
-Activate the corresponding maven profile when packaging the application.
-For example `mvn package -P amqp-connector -Dmaven.test.skip=true`.
-
 ## How to run
 This project is build with maven and uses Quarkus.io as runtime server.
 Build the docker image.

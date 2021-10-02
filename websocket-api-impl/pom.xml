@@ -22,7 +22,11 @@
 			<artifactId>extensions</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-
+    <dependency>
+      <groupId>de.uni-stuttgart.tik.viplab</groupId>
+      <artifactId>amqp-connector</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
 		<!-- Quarkus implementations -->
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -157,29 +161,6 @@
 		</plugins>
 	</build>
 	<profiles>
-		<profile>
-			<id>ecs-connector</id>
-			<dependencies>
-				<dependency>
-					<groupId>de.uni-stuttgart.tik.viplab</groupId>
-					<artifactId>ecs-connector</artifactId>
-					<version>0.0.1-SNAPSHOT</version>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>amqp-connector</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>de.uni-stuttgart.tik.viplab</groupId>
-					<artifactId>amqp-connector</artifactId>
-					<version>0.0.1-SNAPSHOT</version>
-				</dependency>
-			</dependencies>
-		</profile>
 		<profile>
 			<id>native</id>
 			<properties>
