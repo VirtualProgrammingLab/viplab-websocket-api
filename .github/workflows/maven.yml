@@ -19,3 +19,17 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Test with Maven
         run: mvn -B test
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    steps:
+      - name: Docker Login
+        # You may pin to the exact commit or the version.
+        # uses: docker/login-action@f3364599c6aa293cdc2b8391b1b56d0c30e45c8a
+        uses: docker/login-action@v1.8.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Compile with Maven
+        run: mvn --no-transfer-progress package -Dquarkus.container-image.build=true -Dquarkus.container-image.group=viplab -Dquarkus.container-image.name=websocket-api -Dquarkus.container-image.tag=latest -Dquarkus.container-image.push=true -Dquarkus.container-image.username=${{ secrets.DOCKER_USERNAME }} -Dquarkus.container-image.password=${{ secrets.DOCKER_PASSWORD }} -DskipTests=true

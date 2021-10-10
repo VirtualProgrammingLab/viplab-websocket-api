@@ -12,7 +12,7 @@ The schemata of the messages are defined in [schema](schema).
 This project is build with maven and uses Quarkus.io as runtime server.
 Build the docker image.
 ```
-docker build -f Dockerfile.jvm -t websocket-api .
+mvn --no-transfer-progress clean test package -Dquarkus.container-image.build=true -Dquarkus.container-image.group=viplab -Dquarkus.container-image.name=websocket-api -Dquarkus.container-image.tag=latest
 ```
 > The native build currently does not work, because we use reflection in our code.
 
