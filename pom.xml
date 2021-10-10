@@ -25,6 +25,10 @@
 		<quarkus.platform.version>2.3.0.Final</quarkus.platform.version>
 		<surefire-plugin.version>2.22.2</surefire-plugin.version>
 		<org.mockito.version>3.3.3</org.mockito.version>
+    <quarkus.container-image.build>true</quarkus.container-image.build>
+    <quarkus.container-image.group>viplab</quarkus.container-image.group>
+    <quarkus.container-image.name>websocket-api</quarkus.container-image.name>
+    <quarkus.container-image.tag>latest</quarkus.container-image.tag>
 	</properties>
 	<dependencies>
 		<dependency>

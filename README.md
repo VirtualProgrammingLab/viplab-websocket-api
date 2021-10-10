@@ -12,8 +12,13 @@ The schemata of the messages are defined in [schema](schema).
 This project is build with maven and uses Quarkus.io as runtime server.
 Build the docker image.
 ```
-mvn --no-transfer-progress clean test package -Dquarkus.container-image.build=true -Dquarkus.container-image.group=viplab -Dquarkus.container-image.name=websocket-api -Dquarkus.container-image.tag=latest
+mvn clean test package
 ```
+To configure the image-name or version tag, or if it should be build can be set using the following command-line.
+```
+mvn clean test package -Dquarkus.container-image.build=true -Dquarkus.container-image.group=viplab -Dquarkus.container-image.name=websocket-api -Dquarkus.container-image.tag=latest
+```
+
 > The native build currently does not work, because we use reflection in our code.
 
 To run this application, the `jwks.json` is required with all public keys.
