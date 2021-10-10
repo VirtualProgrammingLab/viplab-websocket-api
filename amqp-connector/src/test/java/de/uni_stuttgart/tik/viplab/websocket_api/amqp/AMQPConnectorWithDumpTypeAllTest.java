@@ -129,7 +129,7 @@ class AMQPConnectorWithDumpTypeAllTest {
   @SuppressWarnings("unchecked")
   @Test
   void testCompleteResultJSON(AMQPConnector connector) throws NoSuchMethodException, SecurityException, IOException {
-    String messagePayload = "{\"computation\":\"asdfasfd\",\"identifier\":\"a-random-uuid\"}";
+    String messagePayload = "{\"computation\":\"asdfasfd\",\"identifier\":\"a-random-uuid\",\"status\":\"final\"}";
     Message<String> message = Message.of(messagePayload);
     connector.processResults(message);
     ArgumentCaptor<Consumer<Session>> sessionConsumerCaptor = ArgumentCaptor.forClass(Consumer.class);
@@ -174,7 +174,7 @@ class AMQPConnectorWithDumpTypeAllTest {
   @SuppressWarnings("unchecked")
   @Test
   void testIncompleteResultJSON(AMQPConnector connector) throws NoSuchMethodException, SecurityException, IOException {
-    String messagePayload = "{\"computation\":\"asdfasfd\"}";
+    String messagePayload = "{\"computation\":\"asdfasfd\",\"statuss\":\"final\"}";
     Message<String> message = Message.of(messagePayload);
     connector.processResults(message);
     ArgumentCaptor<Consumer<Session>> sessionConsumerCaptor = ArgumentCaptor.forClass(Consumer.class);

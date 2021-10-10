@@ -5,74 +5,92 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.validation.constraints.NotBlank;
+
+import de.uni_stuttgart.tik.viplab.websocket_api.jsontransformers.StatusEnumTransformer;
 
 public class ComputationResult {
 
-	@NotBlank
-	public String identifier;
+  public enum STATUS {
+    FINAL("final"),
 
-	public String version;
+    INTERMEDIATE("intermediate");
 
-	/**
-	 * The identifier of corresponding Computation
-	 */
-	@NotBlank
-	public String computation;
+    String status;
 
-	public String status;
+    STATUS(String status) {
+      this.status = status;
+    }
 
-	public ZonedDateTime timestamp;
+    public String statusString() {
+      return status;
+    }
 
-	public Output output;
+  }
 
-	public List<Artifact> artifacts = Collections.emptyList();
+  @NotBlank
+  public String identifier;
 
+  public String version;
 
-	public static class Output {
-		public String stdout;
-		public String stderr;
-	}
+  /**
+   * The identifier of corresponding Computation
+   */
+  @NotBlank
+  public String computation;
 
-	public static class Artifact {
+  @JsonbTypeAdapter(value = StatusEnumTransformer.class)
+  public STATUS status;
 
-		enum TYPE {
-			notifications,
-			file,
-			s3file
-		}
+  public ZonedDateTime timestamp;
 
-		public String identifier;
-		public TYPE type;
-	}
+  public Output output;
 
-	public static class Notifications extends Artifact{
+  public List<Artifact> artifacts = Collections.emptyList();
 
-		public Notifications() {
-			type = TYPE.notifications;
-		}
+  public static class Output {
+    public String stdout;
+    public String stderr;
+  }
 
-		public String summary;
+  public static class Artifact {
 
-		public List<Notification> notifications = Collections.emptyList();
+    enum TYPE {
+      notifications, file, s3file
+    }
 
-		public static class Notification {
-			public String severity;
-			public String type;
-			public String message;
-		}
-	}
+    public String identifier;
+    public TYPE type;
+  }
 
-	public static class File extends Artifact{
+  public static class Notifications extends Artifact {
 
-		public File() {
-			type = TYPE.file;
-		}
+    public Notifications() {
+      type = TYPE.notifications;
+    }
 
-		public String path;
-		public String MIMEtype;
-		public String content;
-	}
+    public String summary;
+
+    public List<Notification> notifications = Collections.emptyList();
+
+    public static class Notification {
+      public String severity;
+      public String type;
+      public String message;
+    }
+  }
+
+  public static class File extends Artifact {
+
+    public File() {
+      type = TYPE.file;
+    }
+
+    public String path;
+    public String MIMEtype;
+    public String content;
+  }
 
   public static class S3File extends Artifact {
     public S3File() {
