@@ -8,46 +8,59 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+
 import de.uni_stuttgart.tik.viplab.websocket_api.validation.Environment;
 
 @ApplicationScoped
 public class ConfigurationTemplateRendererManagerImpl implements ConfigurationTemplateRendererManager {
 
-	@Inject
-	TemplateRenderer templateRenderer;
+  @Inject
+  TemplateRenderer templateRenderer;
 
-	private final Map<String, ConfigurationTemplateRenderer> configurationTemplateRenderers = new HashMap<>();
+  private final Map<String, ConfigurationTemplateRenderer> configurationTemplateRenderers = new HashMap<>();
 
-	@PostConstruct
-	void setup() {
-		ServiceLoader<ConfigurationTemplateRenderer> serviceLoader = ServiceLoader
-				.load(ConfigurationTemplateRenderer.class);
-		for (ConfigurationTemplateRenderer configurationTemplateRenderer : serviceLoader) {
-			String environment = getConfigurationTemplateRendererEnvironment(configurationTemplateRenderer);
-			if (configurationTemplateRenderers.containsKey(environment)) {
-				throw new IllegalStateException(
-						"Multiple Configuration Template Renderer for the environment:" + environment);
-			}
-			configurationTemplateRenderers.put(environment, configurationTemplateRenderer);
-		}
-	}
+  @Inject
+  Logger logger;
 
-	private String getConfigurationTemplateRendererEnvironment(
-			ConfigurationTemplateRenderer configurationTemplateRenderer) {
-		if (!configurationTemplateRenderer.getClass().isAnnotationPresent(Environment.class)) {
-			throw new IllegalArgumentException("The Configuration Template Renderer has no Environment specified: "
-					+ configurationTemplateRenderer.getClass().getName());
-		}
-		return configurationTemplateRenderer.getClass().getAnnotation(Environment.class).value();
-	}
+  @PostConstruct
+  void setup() {
+    ServiceLoader<ConfigurationTemplateRenderer> serviceLoader = ServiceLoader
+            .load(ConfigurationTemplateRenderer.class);
+    for (ConfigurationTemplateRenderer configurationTemplateRenderer : serviceLoader) {
+      String environment = getConfigurationTemplateRendererEnvironment(configurationTemplateRenderer);
+      if (configurationTemplateRenderers.containsKey(environment)) {
+        throw new IllegalStateException("Multiple Configuration Template Renderer for the environment:" + environment);
+      }
+      logger.info("Adding ConfiguartionTemplateRender for {}",
+              environment);
+      configurationTemplateRenderers.put(environment,
+              configurationTemplateRenderer);
+    }
+  }
 
-	@Override
-	public Map<String, Object> render(Map<String, Object> configuration, Map<String, String> arguments,
-			String environment) {
-		ConfigurationTemplateRenderer configurationTemplateRenderer = configurationTemplateRenderers.get(environment);
-		if (configurationTemplateRenderer == null) {
-			return configuration;
-		}
-		return configurationTemplateRenderer.render(configuration, arguments, templateRenderer);
-	}
+  private String getConfigurationTemplateRendererEnvironment(
+          ConfigurationTemplateRenderer configurationTemplateRenderer) {
+    if (!configurationTemplateRenderer.getClass()
+            .isAnnotationPresent(Environment.class)) {
+      throw new IllegalArgumentException("The Configuration Template Renderer has no Environment specified: "
+              + configurationTemplateRenderer.getClass()
+                      .getName());
+    }
+    return configurationTemplateRenderer.getClass()
+            .getAnnotation(Environment.class)
+            .value();
+  }
+
+  @Override
+  public Map<String, Object> render(Map<String, Object> configuration, Map<String, String> arguments,
+          String environment) {
+    ConfigurationTemplateRenderer configurationTemplateRenderer = configurationTemplateRenderers.get(environment);
+    if (configurationTemplateRenderer == null) {
+      return configuration;
+    }
+    return configurationTemplateRenderer.render(configuration,
+            arguments,
+            templateRenderer);
+  }
 }
