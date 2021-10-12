@@ -7,13 +7,24 @@
     "metadata": {
         "display-name": "Simple example"
     },
-    "parameters": {
-        "second-argument": {
-            "validation": {
-                "pattern": "\\w*"
-            }
+    "parameters": [
+        { "mode":"fixed",
+          "identifier":"second-argument",
+          "options": [
+                {
+                    "value": "hello_world",
+                    "selected": true
+                },
+                {
+                    "value": "b"
+                },
+                {
+                    "value": "c"
+                }
+            ],
+            "validation": "onlyone"
         }
-    },
+    ],
     "files": [
         {
             "identifier": "11483f23-95bf-424a-98a5-ee5868c85c3e",
@@ -50,13 +61,14 @@
                     "identifier": "bb987760-32d2-43c7-8715-a6d37dbb5195",
                     "access": "template",
                     "content": "cmVwZWF0PXt7cmVwZWF0fX0",
-                    "parameters": {
-                        "repeat": {
-                            "validation": {
-                                "type": "integer"
-                            }
+                    "parameters": [
+                        {
+                            "mode":"any",
+                            "identifier":"repeat",
+                            "default":[5],
+                            "validation": "range"
                         }
-                    }
+                    ]
                 }
             ]
         }

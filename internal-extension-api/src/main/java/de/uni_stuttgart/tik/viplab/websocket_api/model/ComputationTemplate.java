@@ -40,7 +40,7 @@ public class ComputationTemplate {
        * Only used when access is template. The parameters defined can be used in the template and are validated before
        * inserted into the template.
        */
-      public List<Parameter> parameters = Collections.emptyList();;
+      public List<Parameter> parameters;
 
       public Map<String, Object> metadata;
 
