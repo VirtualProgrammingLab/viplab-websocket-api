@@ -1,8 +1,10 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.model;
 
 public class Parameter {
-  public String guiType;
+  public String mode;
+  public String identifier;
 
-  // public Validation validation;
-  // public Map<String, Object> metadata;
+  public String getIdentifier() {
+    return identifier;
+  }
 }

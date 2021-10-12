@@ -5,14 +5,29 @@ import java.util.List;
 
 public class FixedValueParameter extends Parameter {
 
-  public boolean multiple = false;
+  enum Validator {
+    onlyone, minone, any
+  }
 
-  public List<Value> values = Collections.emptyList();
+  public Metadata metadata;
 
-  public static class Value {
+  public Validator validation;
+
+  public List<Option> options = Collections.emptyList();
+
+  public static class Option {
     public String value;
     public String text;
     public boolean selected;
     public boolean disabled;
+  }
+
+  public static class Metadata {
+    enum GuiType {
+      checkbox, radio, dropdown, toggle, slider
+    }
+
+    public GuiType guiType;
+    public String name;
   }
 }
