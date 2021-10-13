@@ -1,6 +1,7 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.jsontransformers;
 
 import javax.json.Json;
+import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.bind.adapter.JsonbAdapter;
 
@@ -10,9 +11,12 @@ public class StatusEnumTransformer implements JsonbAdapter<STATUS, JsonValue> {
 
   @Override
   public STATUS adaptFromJson(JsonValue obj) throws Exception {
+    String jsonstring = null;
+    if (JsonValue.ValueType.STRING == obj.getValueType()) {
+      jsonstring = ((JsonString) obj).getString();
+    }
     for (STATUS status : STATUS.values()) {
-      if (obj.toString()
-              .equals(status.statusString())) {
+      if (jsonstring.equals(status.statusString())) {
         return status;
       }
     }
