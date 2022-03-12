@@ -68,7 +68,7 @@
 			<plugin>
 				<groupId>org.jboss.jandex</groupId>
 				<artifactId>jandex-maven-plugin</artifactId>
-				<version>1.1.1</version>
+				<version>1.2.2</version>
 				<executions>
 					<execution>
 						<?m2e ignore?>
