@@ -29,6 +29,7 @@ import de.uni_stuttgart.tik.viplab.websocket_api.model.FixedValueParameter.Optio
 import de.uni_stuttgart.tik.viplab.websocket_api.model.Parameter;
 import de.uni_stuttgart.tik.viplab.websocket_api.validation.ConfigurationValidatorManager;
 import de.uni_stuttgart.tik.viplab.websocket_api.validation.ParameterValidator;
+import io.quarkus.logging.Log;
 
 @ApplicationScoped
 public class ComputationMergerImpl implements ComputationMerger {
@@ -203,13 +204,20 @@ public class ComputationMergerImpl implements ComputationMerger {
               parameter)) {
         throw new IllegalArgumentException("Argument not valid: " + parameter.getIdentifier());
       }
+      if (value.startsWith("base64:")) {
+    	  value = value.replaceFirst("^base64:", "");
+    	  value = new String(Base64.getUrlDecoder()
+    	            .decode(value), StandardCharsets.UTF_8);
+    	  Log.debug("----------" + value + "----------");
+      }
       parameters.put(parameter.getIdentifier(),
               value);
     });
 
     String renderedTemplate = templateRenderer.renderTemplate(template,
             parameters);
-
+    Log.debug(renderedTemplate);
+    Log.debug("----------" + Base64.getUrlEncoder().encodeToString(renderedTemplate.getBytes(StandardCharsets.UTF_8)) + "----------");
     return Base64.getUrlEncoder()
             .encodeToString(renderedTemplate.getBytes(StandardCharsets.UTF_8));
   }
