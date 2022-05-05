@@ -53,7 +53,7 @@ public class ConfigurationTemplateRendererManagerImpl implements ConfigurationTe
   }
 
   @Override
-  public Map<String, Object> render(Map<String, Object> configuration, Map<String, String> arguments,
+  public Map<String, Object> render(Map<String, Object> configuration, Map<String, Object> arguments,
           String environment) {
     ConfigurationTemplateRenderer configurationTemplateRenderer = configurationTemplateRenderers.get(environment);
     if (configurationTemplateRenderer == null) {

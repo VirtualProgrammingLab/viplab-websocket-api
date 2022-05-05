@@ -29,6 +29,6 @@ public interface ConfigurationTemplateRenderer {
 	 *            template string with the argument value
 	 * @return the configuration where the arguments were injected
 	 */
-	public Map<String, Object> render(Map<String, Object> configuration, Map<String, String> arguments,
+	public Map<String, Object> render(Map<String, Object> configuration, Map<String, Object> arguments,
 			TemplateRenderer templateRenderer);
 }

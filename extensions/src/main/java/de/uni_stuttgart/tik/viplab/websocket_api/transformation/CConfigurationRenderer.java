@@ -12,7 +12,7 @@ import de.uni_stuttgart.tik.viplab.websocket_api.validation.Environment;
 public class CConfigurationRenderer implements ConfigurationTemplateRenderer {
 
   @Override
-  public Map<String, Object> render(Map<String, Object> configuration, Map<String, String> arguments,
+  public Map<String, Object> render(Map<String, Object> configuration, Map<String, Object> arguments,
           TemplateRenderer templateRenderer) {
     ConfigurationUtil configurationUtil = new ConfigurationUtil(arguments, templateRenderer);
     // example

@@ -14,7 +14,7 @@ public class ComputationTask {
 	 */
 	public String template;
 
-	public Map<String, String> arguments;
+	public Map<String, Object> arguments;
 
 	public Map<String, Object> metadata;
 	/**

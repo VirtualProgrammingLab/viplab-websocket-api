@@ -3,10 +3,10 @@ package de.uni_stuttgart.tik.viplab.websocket_api.transformation;
 import java.util.Map;
 
 public class ConfigurationUtil {
-	private final Map<String, String> arguments;
+	private final Map<String, Object> arguments;
 	private final TemplateRenderer templateRenderer;
 
-	public ConfigurationUtil(Map<String, String> arguments, TemplateRenderer templateRenderer) {
+	public ConfigurationUtil(Map<String, Object> arguments, TemplateRenderer templateRenderer) {
 		this.arguments = arguments;
 		this.templateRenderer = templateRenderer;
 	}
