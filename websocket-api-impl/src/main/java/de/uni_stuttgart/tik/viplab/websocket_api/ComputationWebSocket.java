@@ -12,6 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
 import javax.json.bind.JsonbException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.authentication.AuthenticationService;
+import de.uni_stuttgart.tik.viplab.websocket_api.jsontransformers.ParameterDeserializer;
 import de.uni_stuttgart.tik.viplab.websocket_api.message.Message;
 import de.uni_stuttgart.tik.viplab.websocket_api.message.MessageDecoder;
 import de.uni_stuttgart.tik.viplab.websocket_api.message.MessageEncoder;
@@ -135,7 +137,10 @@ public class ComputationWebSocket {
 		}
 
 		String templateJson = new String(Base64.getUrlDecoder().decode(message.template), StandardCharsets.UTF_8);
-		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
+		JsonbConfig config = new JsonbConfig().withDeserializers(new ParameterDeserializer());
+		Jsonb jsonbParam = JsonbBuilder.create(config);
+		ComputationTemplate template = jsonbParam.fromJson(templateJson, ComputationTemplate.class);
+		
 		backendConnector.createComputation(template, message.task).thenAcceptAsync(computationId -> {
 			ComputationMessage computationMessage = new ComputationMessage(computationId, ZonedDateTime.now(),
 					ZonedDateTime.now().plusHours(3), "created");

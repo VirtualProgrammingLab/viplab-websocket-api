@@ -23,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 
+import de.uni_stuttgart.tik.viplab.websocket_api.model.AnyValueParameter;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.Computation;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
@@ -92,9 +93,10 @@ public class ComputationMergerImpl implements ComputationMerger {
                       } else {
                         argument = arguments.get(parameterName);
                       }
-
-                      if (!parameterValidator.isValid(argument.toString(),
-                              param)) {
+                      
+                      // Validation
+                      FixedValueParameter childParam = ((FixedValueParameter) param);
+                      if (!parameterValidator.isValid(argument, childParam)) {
                         throw new IllegalArgumentException("Argument not valid: " + parameterName);
                       }
                       return argument;
@@ -195,9 +197,10 @@ public class ComputationMergerImpl implements ComputationMerger {
     String template = new String(Base64.getUrlDecoder()
             .decode(partFromTemplate.content), StandardCharsets.UTF_8);
     
-    // Use javax.json to later determine type of values
     String variablesJson = new String(Base64.getUrlDecoder()
             .decode(partFromTask.content), StandardCharsets.UTF_8);
+    
+    // Use javax.json to later determine type of values
     JsonObject variables;
     try (JsonReader reader = Json.createReader(new StringReader(variablesJson))) {
       variables = reader.readObject();
@@ -213,12 +216,19 @@ public class ComputationMergerImpl implements ComputationMerger {
       JsonValue.ValueType vt = variables.get(parameter.getIdentifier()).getValueType();
       Log.debug("----------" + vt + "----------" + variables.get(parameter.getIdentifier()));
       
-      // TODO: Validation
-      // String value = ((JsonString) variables.get(parameter.getIdentifier())).getString();
-      // if (!parameterValidator.isValid(value,
-      //         parameter)) {
-      //   throw new IllegalArgumentException("Argument not valid: " + parameter.getIdentifier());
-      // }
+      // Validation
+      Object value = jsonparams.get(parameter.getIdentifier());
+      if (parameter.getMode().equals("fixed")) {
+        FixedValueParameter childParam = ((FixedValueParameter) parameter);
+        if (!parameterValidator.isValid(value, childParam)) {
+          throw new IllegalArgumentException("Argument not valid: " + parameter.getIdentifier());
+        }
+      } else {
+        AnyValueParameter childParam = ((AnyValueParameter) parameter);
+        if (!parameterValidator.isValid(value, childParam)) {
+          throw new IllegalArgumentException("Argument not valid: " + parameter.getIdentifier());
+        }
+      }
       
       switch(vt) {
         case ARRAY:
