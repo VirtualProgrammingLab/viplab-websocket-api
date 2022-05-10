@@ -13,12 +13,17 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
+import javax.json.JsonValue;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 
+import de.uni_stuttgart.tik.viplab.websocket_api.model.AnyValueParameter;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.Computation;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
@@ -53,7 +58,7 @@ public class ComputationMergerImpl implements ComputationMerger {
 
     computation.environment = template.environment;
 
-    Map<String, String> arguments = getArguments(template.parameters,
+    Map<String, Object> arguments = getArguments(template.parameters,
             task.arguments);
     computation.configuration = getConfiguration(computation.environment,
             template.configuration,
@@ -66,12 +71,12 @@ public class ComputationMergerImpl implements ComputationMerger {
     return computation;
   }
 
-  private Map<String, String> getArguments(List<FixedValueParameter> parameters, Map<String, String> arguments) {
+  private Map<String, Object> getArguments(List<FixedValueParameter> parameters, Map<String, Object> arguments) {
     return parameters.stream()
             .collect(Collectors.toMap(Parameter::getIdentifier,
                     param -> {
                       String parameterName = param.getIdentifier();
-                      String argument = null;
+                      Object argument = null;
                       if (null == arguments || !arguments.containsKey(parameterName)) {
                         // In case no arguments where supplied in the task, check if
                         // the template provides a selected value, otherwise throw exception
@@ -88,9 +93,10 @@ public class ComputationMergerImpl implements ComputationMerger {
                       } else {
                         argument = arguments.get(parameterName);
                       }
-
-                      if (!parameterValidator.isValid(argument,
-                              param)) {
+                      
+                      // Validation
+                      FixedValueParameter childParam = ((FixedValueParameter) param);
+                      if (!parameterValidator.isValid(argument, childParam)) {
                         throw new IllegalArgumentException("Argument not valid: " + parameterName);
                       }
                       return argument;
@@ -107,7 +113,7 @@ public class ComputationMergerImpl implements ComputationMerger {
    * @return
    */
   private Map<String, Object> getConfiguration(String environment, Map<String, Object> configurationTemplate,
-          Map<String, String> arguments) {
+          Map<String, Object> arguments) {
     Map<String, Object> configuration = configurationTemplateRendererManager.render(configurationTemplate,
             arguments,
             environment);
@@ -190,33 +196,65 @@ public class ComputationMergerImpl implements ComputationMerger {
   private String renderTemplate(Part partFromTemplate, ComputationTask.File.Part partFromTask) {
     String template = new String(Base64.getUrlDecoder()
             .decode(partFromTemplate.content), StandardCharsets.UTF_8);
+    
     String variablesJson = new String(Base64.getUrlDecoder()
             .decode(partFromTask.content), StandardCharsets.UTF_8);
+    
+    // Use javax.json to later determine type of values
     JsonObject variables;
     try (JsonReader reader = Json.createReader(new StringReader(variablesJson))) {
       variables = reader.readObject();
     }
 
-    HashMap<String, String> parameters = new HashMap<>();
+    // Use org.json so that JSONArrays containing Strings don't have quotes in result
+    JSONObject jsonparams = new JSONObject(variablesJson);
+
+    HashMap<String, Object> params = new HashMap<>();
+    
     partFromTemplate.parameters.forEach(parameter -> {
-      String value = ((JsonString) variables.get(parameter.getIdentifier())).getString();
-      if (!parameterValidator.isValid(value,
-              parameter)) {
-        throw new IllegalArgumentException("Argument not valid: " + parameter.getIdentifier());
+
+      JsonValue.ValueType vt = variables.get(parameter.getIdentifier()).getValueType();
+      Log.debug("----------" + vt + "----------" + variables.get(parameter.getIdentifier()));
+      
+      // Validation
+      Object value = jsonparams.get(parameter.getIdentifier());
+      if (parameter.getMode().equals("fixed")) {
+        FixedValueParameter childParam = ((FixedValueParameter) parameter);
+        if (!parameterValidator.isValid(value, childParam)) {
+          throw new IllegalArgumentException("Argument not valid: " + parameter.getIdentifier());
+        }
+      } else {
+        AnyValueParameter childParam = ((AnyValueParameter) parameter);
+        if (!parameterValidator.isValid(value, childParam)) {
+          throw new IllegalArgumentException("Argument not valid: " + parameter.getIdentifier());
+        }
       }
-      if (value.startsWith("base64:")) {
-    	  value = value.replaceFirst("^base64:", "");
-    	  value = new String(Base64.getUrlDecoder()
-    	            .decode(value), StandardCharsets.UTF_8);
-    	  Log.debug("----------" + value + "----------");
+      
+      switch(vt) {
+        case ARRAY:
+          JSONArray test = jsonparams.getJSONArray(parameter.getIdentifier());
+          params.put(parameter.getIdentifier(), test);
+          break;
+        case NUMBER:
+          params.put(parameter.getIdentifier(), jsonparams.getNumber(parameter.getIdentifier()));
+          break;
+        case STRING:
+          String v = jsonparams.getString(parameter.getIdentifier());
+          if (v.startsWith("base64:")) {
+            v = v.replaceFirst("^base64:", "");
+            v = new String(Base64.getUrlDecoder()
+                      .decode(v), StandardCharsets.UTF_8);
+          }
+          params.put(parameter.getIdentifier(), v);
+          break;
+        default:
+          params.put(parameter.getIdentifier(), jsonparams.get(parameter.getIdentifier()));
+          break;
       }
-      parameters.put(parameter.getIdentifier(),
-              value);
     });
 
     String renderedTemplate = templateRenderer.renderTemplate(template,
-            parameters);
-    Log.debug(renderedTemplate);
+            params);
     Log.debug("----------" + Base64.getUrlEncoder().encodeToString(renderedTemplate.getBytes(StandardCharsets.UTF_8)) + "----------");
     return Base64.getUrlEncoder()
             .encodeToString(renderedTemplate.getBytes(StandardCharsets.UTF_8));

@@ -10,11 +10,13 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import de.uni_stuttgart.tik.viplab.websocket_api.jsontransformers.ParameterDeserializer;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.Computation;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTask;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
@@ -32,7 +34,11 @@ class ComputationMergerImplTest {
 	@ParameterizedTest
 	@MethodSource("exampleJsonProvider")
 	void testMerge(String taskJson, String templateJson, String computationJson) {
+		
+		JsonbConfig config = new JsonbConfig().withDeserializers(new ParameterDeserializer());
+    	jsonb = JsonbBuilder.create(config);
 		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
+		
 		ComputationTask task = jsonb.fromJson(taskJson, ComputationTask.class);
 
 		Computation actualComputation = sut.merge(template, task);

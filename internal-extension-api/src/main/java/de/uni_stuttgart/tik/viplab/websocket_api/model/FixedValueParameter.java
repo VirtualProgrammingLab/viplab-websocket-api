@@ -5,8 +5,8 @@ import java.util.List;
 
 public class FixedValueParameter extends Parameter {
 
-  enum Validator {
-    onlyone, minone, any
+  public enum Validator {
+    oneof, minone, anyof
   }
 
   public Metadata metadata;

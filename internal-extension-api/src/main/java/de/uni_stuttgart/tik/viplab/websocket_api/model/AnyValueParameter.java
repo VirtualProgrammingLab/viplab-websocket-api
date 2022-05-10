@@ -4,7 +4,7 @@ import javax.json.bind.annotation.JsonbProperty;
 
 public class AnyValueParameter extends Parameter {
 
-  enum Validator {
+  public enum Validator {
     pattern, range, none
   }
 
@@ -12,10 +12,10 @@ public class AnyValueParameter extends Parameter {
   @JsonbProperty(value = "default")
   public Object[] defaults;
 
-  public double min;
-  public double max;
-  public double step;
-  public int maxlenght;
+  public Double min;
+  public Double max;
+  public Double step;
+  public Integer maxlength;
   public Validator validation;
   public String pattern;
 

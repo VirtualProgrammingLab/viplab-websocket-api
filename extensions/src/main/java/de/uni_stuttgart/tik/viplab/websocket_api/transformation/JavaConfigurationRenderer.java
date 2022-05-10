@@ -12,7 +12,7 @@ import de.uni_stuttgart.tik.viplab.websocket_api.validation.Environment;
 public class JavaConfigurationRenderer implements ConfigurationTemplateRenderer {
 
 	@Override
-	public Map<String, Object> render(Map<String, Object> configuration, Map<String, String> arguments, TemplateRenderer templateRenderer) {
+	public Map<String, Object> render(Map<String, Object> configuration, Map<String, Object> arguments, TemplateRenderer templateRenderer) {
 		ConfigurationUtil configurationUtil = new ConfigurationUtil(arguments, templateRenderer);
 		// example
 		configurationUtil.renderPropertyTemplate(configuration, "running.commandLineArguments");

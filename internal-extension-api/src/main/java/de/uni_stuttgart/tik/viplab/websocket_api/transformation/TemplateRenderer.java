@@ -15,5 +15,5 @@ public interface TemplateRenderer {
 	 *            map of parameter names to parameter values
 	 * @return
 	 */
-	public String renderTemplate(String template, Map<String, String> parameters);
+	public String renderTemplate(String template, Map<String, Object> parameters);
 }

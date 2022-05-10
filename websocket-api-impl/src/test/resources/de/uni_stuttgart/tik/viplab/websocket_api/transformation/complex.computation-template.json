@@ -22,7 +22,7 @@
                     "value": "c"
                 }
             ],
-            "validation": "onlyone"
+            "validation": "oneof"
         }
     ],
     "files": [
