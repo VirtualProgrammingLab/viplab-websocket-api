@@ -25,12 +25,12 @@ public class ParameterDeserializer implements JsonbDeserializer<Parameter> {
 		String mode = jsonObj.getString("mode");
 
 		switch (mode) {
-		case "any":
-			return jsonb.fromJson(jsonString, AnyValueParameter.class);
-		case "fixed":
-			return jsonb.fromJson(jsonString, FixedValueParameter.class);
-		default:
-			throw new JsonbException("Unknown mode: " + mode);
+			case "any":
+				return jsonb.fromJson(jsonString, AnyValueParameter.class);
+			case "fixed":
+				return jsonb.fromJson(jsonString, FixedValueParameter.class);
+			default:
+				throw new JsonbException("Unknown mode: " + mode);
 		}
     }
 

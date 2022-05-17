@@ -36,7 +36,7 @@ class ComputationMergerImplTest {
 	void testMerge(String taskJson, String templateJson, String computationJson) {
 		
 		JsonbConfig config = new JsonbConfig().withDeserializers(new ParameterDeserializer());
-    	jsonb = JsonbBuilder.create(config);
+		jsonb = JsonbBuilder.create(config);
 		ComputationTemplate template = jsonb.fromJson(templateJson, ComputationTemplate.class);
 		
 		ComputationTask task = jsonb.fromJson(taskJson, ComputationTask.class);
@@ -59,7 +59,7 @@ class ComputationMergerImplTest {
 	}
 
 	private static Stream<Arguments> exampleJsonProvider() {
-		return Stream.of("minimal", "simple", "complex").map(fileName -> {
+		return Stream.of("minimal", "simple", "complex", "params").map(fileName -> {
 			return Arguments.of(loadFile(fileName + ".computation-task.json"),
 					loadFile(fileName + ".computation-template.json"), loadFile(fileName + ".computation.json"));
 		});

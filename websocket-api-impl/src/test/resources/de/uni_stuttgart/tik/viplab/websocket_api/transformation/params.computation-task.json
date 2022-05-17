@@ -1,0 +1,28 @@
+{
+    "identifier": "53c61972-ad65-6307-16be-7ebe077f5360",
+    "template": "11483f23-95bf-424a-98a5-ee5868c85c3f",
+    "files": [
+        {
+            "identifier": "22483f42-95bf-984a-98a5-ee9485c85c3f",
+            "parts": [
+                {
+                    "identifier": "f3fc4404-3529-4962-b252-47bc4ddd02a1",
+                    "content": "eyJfX3NsaWRlclNpbmdsZV9fIjo3NX0"
+                },
+                {
+                    "identifier": "ceb051d8-b50c-4814-983a-b9d703cae0c6",
+                    "content": "eyJfX2NoZWNrYm94X18iOlsicHJvZ3JhbW1pbmciXSwiX19yYWRpb0J1dHRvbl9fIjoiSmF2YSIsIl9fZHJvcGRvd25TaW5nbGVfXyI6Im5ldmVyIiwiX19kcm9wZG93bk11bHRpcGxlX18iOlsiTGFzdCBDaHJpc3RtYXMiLCJUaGF0cyBDaHJpc3RtYXMgVG8gTWUiXSwiX190b2dnbGVfXyI6WyJTcGlkZXJzIl0sIl9fc2xpZGVyTXVsdGlwbGVfXyI6WzI1LDUwLDc1XSwiX19pbnB1dFRleHRXT01heGxlbmd0aF9fIjoiYmFzZTY0OiIsIl9faW5wdXRUZXh0V01heGxlbmd0aF9fIjoiYmFzZTY0OlpnIiwiX19pbnB1dE51bWJlcl9fIjoyNX0"
+                }
+            ]
+        },
+        {
+            "identifier": "22483f42-95bf-984a-98a5-ee9485c85c31",
+            "parts": [
+                {
+                    "identifier": "f3fc4404-3529-4962-b252-47bc4ddd02a2",
+                    "content": "eyJfX2RlZmF1bHRfXyI6ImJhc2U2NDphVzUwSUcxaGFXNG9hVzUwSUdGeVoyTXNJR05vWVhJZ0tpcGhjbWQyS1NCN0lBMEtMeThnVUhKcGJuUWdKMGhsYkd4dklGZHZjbXhrSnlBTkNuMCJ9"
+                }
+            ]
+        }
+    ]
+}

@@ -256,7 +256,7 @@ public class ComputationMergerImpl implements ComputationMerger {
     String renderedTemplate = templateRenderer.renderTemplate(template,
             params);
     Log.debug("----------" + Base64.getUrlEncoder().encodeToString(renderedTemplate.getBytes(StandardCharsets.UTF_8)) + "----------");
-    return Base64.getUrlEncoder()
+    return Base64.getUrlEncoder().withoutPadding()
             .encodeToString(renderedTemplate.getBytes(StandardCharsets.UTF_8));
   }
 

@@ -1,0 +1,310 @@
+{
+    "identifier": "11483f23-95bf-424a-98a5-ee5868c85c3f",
+    "version": "3.0.0",
+    "metadata": {
+        "displayName": "Parameters Example",
+        "description": "This is a 'Hello World' example showing the usage of parameters. Please introduce yourself so that the Hello World-Container can print your information...",
+        "viewer": [
+            "CSV",
+            "ParaView",
+            "Image"
+        ]
+    },
+    "environment": "Container",
+    "files": [
+        {
+            "identifier": "22483f42-95bf-984a-98a5-ee9485c85c3f",
+            "path": "params.ini",
+            "metadata": {
+                "syntaxHighlighting": "ini"
+            },
+            "parts": [
+                {
+                    "identifier": "f3fc4404-3529-4962-b252-47bc4ddd02a1",
+                    "access": "template",
+                    "metadata": {
+                        "name": "Parameter in part",
+                        "emphasis": "low"
+                    },
+                    "parameters": [
+                        {
+                            "mode": "any",
+                            "identifier": "__sliderSingle__",
+                            "metadata": {
+                                "guiType": "slider",
+                                "name": "Temperature",
+                                "vertical": false,
+                                "description": "How hot do you like your coffee? (in degrees Celsius) - Tip: Typical Serving Temperature lies between 65 and 70 Degrees"
+                            },
+                            "default": [
+                                75
+                            ],
+                            "min": 0,
+                            "max": 90,
+                            "step": 5,
+                            "validation": "range"
+                        }
+                    ],
+                    "content": "W2NvZmZlZSBwcmVmZXJlbmNlXQpjb2ZmZWVUZW1wZXJhdHVyZT17e19fc2xpZGVyU2luZ2xlX199fQ"
+                },
+                {
+                    "identifier": "ceb051d8-b50c-4814-983a-b9d703cae0c6",
+                    "access": "template",
+                    "metadata": {
+                        "name": "params.ini file part"
+                    },
+                    "parameters": [
+                        {
+                            "mode": "fixed",
+                            "identifier": "__checkbox__",
+                            "metadata": {
+                                "guiType": "checkbox",
+                                "name": "Things I like",
+                                "description": "Select things you like"
+                            },
+                            "options": [
+                                {
+                                    "text": "Programming",
+                                    "value": "programming",
+                                    "selected": true
+                                },
+                                {
+                                    "value": "music"
+                                },
+                                {
+                                    "value": "books"
+                                }
+                            ],
+                            "validation": "minone"
+                        },
+                        {
+                            "mode": "fixed",
+                            "identifier": "__radioButton__",
+                            "metadata": {
+                                "guiType": "radio",
+                                "name": "Favorite PL",
+                                "description": "Select your favorite programming language"
+                            },
+                            "options": [
+                                {
+                                    "value": "C"
+                                },
+                                {
+                                    "value": "Java",
+                                    "selected": true
+                                },
+                                {
+                                    "value": "Haskell",
+                                    "disabled": true
+                                },
+                                {
+                                    "text": "Sssss... Python ...ssssS",
+                                    "value": "Python"
+                                }
+                            ],
+                            "validation": "oneof"
+                        },
+                        {
+                            "mode": "fixed",
+                            "identifier": "__dropdownSingle__",
+                            "metadata": {
+                                "guiType": "dropdown",
+                                "name": "Fridge",
+                                "description": "How often do look into the fridge a day?"
+                            },
+                            "options": [
+                                {
+                                    "value": "Please choose one",
+                                    "disabled": true
+                                },
+                                {
+                                    "value": "never",
+                                    "selected": true
+                                },
+                                {
+                                    "text": "1 a day",
+                                    "value": "Once a day"
+                                },
+                                {
+                                    "value": "Twice a day"
+                                },
+                                {
+                                    "value": "Three times a day"
+                                },
+                                {
+                                    "value": "More than three times a day"
+                                }
+                            ],
+                            "validation": "oneof"
+                        },
+                        {
+                            "mode": "fixed",
+                            "identifier": "__dropdownMultiple__",
+                            "metadata": {
+                                "guiType": "dropdown",
+                                "name": "Dance Time",
+                                "description": "To which songs would you dance in the kitchen?"
+                            },
+                            "multiple": true,
+                            "options": [
+                                {
+                                    "value": "Please choose multiple",
+                                    "disabled": true
+                                },
+                                {
+                                    "text": "Last Christmas (aka the one that drives everybody else crazy)",
+                                    "value": "Last Christmas",
+                                    "selected": true
+                                },
+                                {
+                                    "value": "White Christmas"
+                                },
+                                {
+                                    "value": "Winter Woderland"
+                                },
+                                {
+                                    "value": "Thats Christmas To Me",
+                                    "selected": true
+                                },
+                                {
+                                    "value": "O Come All Ye Faithful",
+                                    "disabled": true
+                                }
+                            ],
+                            "validation": "anyof"
+                        },
+                        {
+                            "mode": "fixed",
+                            "identifier": "__toggle__",
+                            "metadata": {
+                                "guiType": "toggle",
+                                "name": "NO!",
+                                "description": "What do you dislike?"
+                            },
+                            "options": [
+                                {
+                                    "value": "Spiders",
+                                    "selected": true
+                                },
+                                {
+                                    "text": "All kinds of Bugs (also the ones living in your Computer)",
+                                    "value": "All kinds of Bugs"
+                                },
+                                {
+                                    "value": "I never dislike anything!"
+                                }
+                            ],
+                            "validation": "anyof"
+                        },
+                        {
+                            "mode": "any",
+                            "identifier": "__sliderMultiple__",
+                            "metadata": {
+                                "guiType": "slider",
+                                "name": "random numbers",
+                                "vertical": true,
+                                "description": "Choose three random numbers to be output by the container"
+                            },
+                            "default": [
+                                25,
+                                50,
+                                75
+                            ],
+                            "min": 0,
+                            "max": 100,
+                            "step": 5,
+                            "validation": "range"
+                        },
+                        {
+                            "mode": "any",
+                            "identifier": "__inputTextWOMaxlength__",
+                            "metadata": {
+                                "guiType": "input_field",
+                                "type": "text",
+                                "name": "name",
+                                "description": "Enter your name"
+                            },
+                            "default": [
+                                ""
+                            ],
+                            "validation": "none"
+                        },
+                        {
+                            "mode": "any",
+                            "identifier": "__inputTextWMaxlength__",
+                            "metadata": {
+                                "guiType": "input_field",
+                                "type": "text",
+                                "name": "Christmas Wish",
+                                "description": "Enter what you wish for at christmas"
+                            },
+                            "maxlength": 200,
+                            "default": [
+                                ""
+                            ],
+                            "validation": "pattern",
+                            "pattern": "^[A-z]+$"
+                        },
+                        {
+                            "mode": "any",
+                            "identifier": "__inputNumber__",
+                            "metadata": {
+                                "guiType": "input_field",
+                                "type": "number",
+                                "name": "Age",
+                                "description": "Enter your current age"
+                            },
+                            "default": [
+                                25
+                            ],
+                            "min": 0,
+                            "max": 100,
+                            "step": 1,
+                            "validation": "range"
+                        }
+                    ],
+                    "content": "W2Fib3V0IHlvdV0NCmxpa2VkVGhpbmdzPXt7I2VhY2ggX19jaGVja2JveF9ffX17eyNpZiBAbGFzdH19e3sufX17e2Vsc2V9fXt7Ln19LCB7ey9pZn19e3svZWFjaH19DQpmYXZvcml0ZVBMPXt7X19yYWRpb0J1dHRvbl9ffX0NCmZyaWRnZT17e19fZHJvcGRvd25TaW5nbGVfX319DQpkYW5jaW5nPXt7I2VhY2ggX19kcm9wZG93bk11bHRpcGxlX199fXt7I2lmIEBsYXN0fX17ey59fXt7ZWxzZX19e3sufX0sIHt7L2lmfX17ey9lYWNofX0NCmRpc2xpa2VkVGhpbmdzPXt7I2VhY2ggX190b2dnbGVfX319e3sjaWYgQGxhc3R9fXt7Ln19e3tlbHNlfX17ey59fSwge3svaWZ9fXt7L2VhY2h9fQ0KcmFuZG9tTnVtYmVycz17eyNlYWNoIF9fc2xpZGVyTXVsdGlwbGVfX319e3sjaWYgQGxhc3R9fXt7Ln19e3tlbHNlfX17ey59fSwge3svaWZ9fXt7L2VhY2h9fQ0KbmFtZT17e3tfX2lucHV0VGV4dFdPTWF4bGVuZ3RoX199fX0NCmNocmlzdG1hc1dpc2g9e3tfX2lucHV0VGV4dFdNYXhsZW5ndGhfX319DQphZ2U9e3tfX2lucHV0TnVtYmVyX199fQ"
+                }
+            ]
+        },
+        {
+            "identifier": "22483f42-95bf-984a-98a5-ee9485c85c31",
+            "path": "code.c",
+            "metadata": {
+                "syntaxHighlighting": "c_cpp"
+            },
+            "parts": [
+                {
+                    "identifier": "f3fc4404-3529-4962-b252-47bc4ddd02a2",
+                    "access": "template",
+                    "metadata": {
+                        "name": "Parameter in part",
+                        "emphasis": "low"
+                    },
+                    "parameters": [
+                        {
+                            "mode": "any",
+                            "identifier": "__default__",
+                            "metadata": {
+                                "guiType": "editor",
+                                "name": "code",
+                                "description": "Enter some code"
+                            },
+                            "default": [
+                                "aW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KSB7IA0KLy8gUHJpbnQgJ0hlbGxvIFdvcmxkJyANCn0"
+                            ],
+                            "validation": "none"
+                        }
+                    ],
+                    "content": "e3t7X19kZWZhdWx0X199fX0"
+                }
+            ]
+        }
+    ],
+    "configuration": {
+        "resources.image": "name://viplab-example-image",
+        "resources.volume": "/data/shared",
+        "resources.memory": "1g",
+        "resources.numCPUs": 1
+    }
+}
