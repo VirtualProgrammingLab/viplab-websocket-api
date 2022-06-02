@@ -35,8 +35,11 @@ import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.CreateComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ErrorMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.MessageUtil;
+import de.uni_stuttgart.tik.viplab.websocket_api.messages.PrepareComputationMessage;
+import de.uni_stuttgart.tik.viplab.websocket_api.messages.PreparedComputationMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.SubscribeMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationTemplate;
+import io.quarkus.logging.Log;
 
 @ServerEndpoint(value = "/computations", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
 @ApplicationScoped
@@ -100,6 +103,10 @@ public class ComputationWebSocket {
 				mustBeAuthenticated(session);
 				this.onCreateComputation(fromJsonObject(message.content, CreateComputationMessage.class), session);
 				break;
+			case PrepareComputationMessage.MESSAGE_TYPE:
+				mustBeAuthenticated(session);
+				this.onPrepareComputation(fromJsonObject(message.content, PrepareComputationMessage.class), session);
+				break;
 			case SubscribeMessage.MESSAGE_TYPE:
 				mustBeAuthenticated(session);
 				this.onSubscribe(fromJsonObject(message.content, SubscribeMessage.class), session);
@@ -147,6 +154,32 @@ public class ComputationWebSocket {
 			send(computationMessage, session);
 			notificationService.subscribe("computation:" + computationId, new WebsocketSessionWrapper(session));
 		});
+	}
+
+	private void onPrepareComputation(PrepareComputationMessage message, Session session) {
+		try {
+			authenticationService.verify(message.template,
+					ComputationSession.getJWT(session).getClaim("viplab.computation-template.digest").asString());
+		} catch (IllegalArgumentException e) {
+			throw new ComputationWebsocketException("The integrity of the Computation Template can't be verified", e);
+		}
+
+		String templateJson = new String(Base64.getUrlDecoder().decode(message.template), StandardCharsets.UTF_8);
+		JsonbConfig config = new JsonbConfig().withDeserializers(new ParameterDeserializer());
+		Jsonb jsonbParam = JsonbBuilder.create(config);
+		ComputationTemplate template = jsonbParam.fromJson(templateJson, ComputationTemplate.class);
+		
+		Log.info("!!!PREPARE COMPUTATION!!!");
+
+		if (template.environment.equalsIgnoreCase("Container") || template.environment.equalsIgnoreCase("Matlab")) {
+			Log.info(template.environment);
+			backendConnector.prepareComputation(template).thenAcceptAsync(preparationId -> {
+				PreparedComputationMessage prepareComputationMessage = new PreparedComputationMessage(preparationId, ZonedDateTime.now(),
+						ZonedDateTime.now().plusHours(3), "prepared");
+				send(prepareComputationMessage, session);
+				notificationService.subscribe("prepared-computation:" + preparationId, new WebsocketSessionWrapper(session));
+			});
+		}
 	}
 
 	private void onSubscribe(SubscribeMessage subscribeMessage, Session session) {

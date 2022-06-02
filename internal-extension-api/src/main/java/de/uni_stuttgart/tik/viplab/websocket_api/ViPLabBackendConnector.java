@@ -25,4 +25,13 @@ public interface ViPLabBackendConnector {
 	 *             if the given template or task are not valid
 	 */
 	CompletionStage<String> createComputation(ComputationTemplate template, ComputationTask task);
+
+	/**
+	 * Prepare the Computation on the backend using this connector
+	 * 
+	 * @param template the Computation Template
+	 * 
+	 * @return The correlation id of the prepared computation
+	 */
+	CompletionStage<String> prepareComputation(ComputationTemplate template);
 }

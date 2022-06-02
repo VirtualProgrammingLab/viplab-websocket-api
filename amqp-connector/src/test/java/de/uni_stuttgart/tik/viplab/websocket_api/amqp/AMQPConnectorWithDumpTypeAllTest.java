@@ -71,6 +71,7 @@ class AMQPConnectorWithDumpTypeAllTest {
   @BeforeAll
   public static void setupTest() {
     InMemoryConnector.switchOutgoingChannelsToInMemory("computations");
+    InMemoryConnector.switchOutgoingChannelsToInMemory("preparations");
     InMemoryConnector.switchIncomingChannelsToInMemory("results");
     MemoryConfigSource.setMapEntry("viplab.amqp.dumpmessages",
             AMQPConnector.DumpType.All.toString());

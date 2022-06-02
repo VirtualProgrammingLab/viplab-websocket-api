@@ -45,6 +45,10 @@ public class AMQPConnector implements ViPLabBackendConnector {
   }
 
   @Inject
+  @Channel("preparations")
+  Emitter<String> preparations;
+
+  @Inject
   @Channel("computations")
   Emitter<String> computations;
 
@@ -97,6 +101,15 @@ public class AMQPConnector implements ViPLabBackendConnector {
     return computations.send(computationJson)
             .thenApply(v -> {
               return computation.identifier;
+            });
+  }
+
+  @Override
+  public CompletionStage<String> prepareComputation(ComputationTemplate template) {
+    String templateJson = jsonb.toJson(template);
+    return preparations.send(templateJson)
+            .thenApply(v -> {
+              return template.identifier;
             });
   }
 
