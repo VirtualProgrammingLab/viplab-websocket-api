@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
-import io.smallrye.reactive.messaging.connectors.InMemoryConnector;
+import io.smallrye.reactive.messaging.providers.connectors.InMemoryConnector;
 
 /**
  * Use the in-memory connector to avoid having to use a broker.
