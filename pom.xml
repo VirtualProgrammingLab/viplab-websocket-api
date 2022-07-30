@@ -19,10 +19,10 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
-		<quarkus-plugin.version>2.3.0.Final</quarkus-plugin.version>
+		<quarkus-plugin.version>2.11.1.Final</quarkus-plugin.version>
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-		<quarkus.platform.version>2.3.0.Final</quarkus.platform.version>
+		<quarkus.platform.version>2.11.1.Final</quarkus.platform.version>
 		<surefire-plugin.version>2.22.2</surefire-plugin.version>
 		<org.mockito.version>3.3.3</org.mockito.version>
     <quarkus.container-image.build>true</quarkus.container-image.build>
@@ -93,6 +93,10 @@
 							<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
 						</systemProperties>
 					</configuration>
+				</plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.10.1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
