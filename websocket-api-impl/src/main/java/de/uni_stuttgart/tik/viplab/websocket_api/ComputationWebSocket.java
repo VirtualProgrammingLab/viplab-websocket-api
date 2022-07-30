@@ -122,7 +122,8 @@ public class ComputationWebSocket {
 	}
 
 	private void onAuthentication(AuthenticateMessage message, Session session) {
-		if (session.getUserProperties().containsKey(ComputationSession.SESSION_JWT)) {
+		if (session.getUserProperties().containsKey(ComputationSession.SESSION_JWT) &&
+		  !ComputationSession.getJWT(session).getClaims().containsKey("viplab.digest-replaceable")){
 			throw new ComputationWebsocketException("JWT is already set.");
 		}
 		DecodedJWT jwt;
