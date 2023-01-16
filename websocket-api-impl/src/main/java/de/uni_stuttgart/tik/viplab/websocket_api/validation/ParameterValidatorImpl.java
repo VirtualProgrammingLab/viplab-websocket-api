@@ -129,7 +129,7 @@ public class ParameterValidatorImpl implements ParameterValidator {
 			valid &= ((max >= input) ? true : false);
 		}
 		if (step != null) {
-			valid &= ((input % step == 0) ? true : false);
+			valid &= (((input - min) % step == 0) ? true : false);
 		}
 		return valid;
 	}
