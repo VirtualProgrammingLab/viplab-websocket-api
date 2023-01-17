@@ -2,6 +2,7 @@ package de.uni_stuttgart.tik.viplab.websocket_api.validation;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -11,6 +12,7 @@ import org.json.JSONArray;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.model.AnyValueParameter;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.FixedValueParameter;
+import de.uni_stuttgart.tik.viplab.websocket_api.model.FixedValueParameter.Option;
 
 @ApplicationScoped
 public class ParameterValidatorImpl implements ParameterValidator {
@@ -79,20 +81,34 @@ public class ParameterValidatorImpl implements ParameterValidator {
 	public boolean isValid(Object input, FixedValueParameter parameter) {
 		boolean valid = true;
 		
+		String inputString = null;
+		JSONArray inputArray = null;
+		if (input instanceof String) {
+			inputString = input.toString();
+		} else if (input.getClass().isArray()) {
+			inputArray = ((JSONArray) input);
+		}
+
 		switch(parameter.validation) {
 			case oneof:
-				if (input.getClass().isArray()) {
-					JSONArray inputArray = ((JSONArray) input);
+				if (inputArray != null) {
+					inputString = inputArray.getString(0);
 					valid &= (inputArray.length() == 1) ? true : false;
-				} else if (input instanceof String) {
-					valid &= true;
+				}
+				if (inputString != null) {
+					valid &= isValidForOptions(inputString, parameter.options);
 				} else {
 					valid &= false;
 				}
 				break;
 			case minone:
-				JSONArray inputArray = ((JSONArray) input);
-				valid &= (inputArray.length() > 0) ? true : false;
+				if (inputArray != null) {
+					valid &= (inputArray.length() > 0) ? true : false;
+					for (int i = 0; i < inputArray.length(); i++) {
+						String val = inputArray.getString(i);
+						valid &= isValidForOptions(val, parameter.options);
+					}
+				}
 				break;
 			case anyof:
 				valid &= true;
@@ -103,10 +119,26 @@ public class ParameterValidatorImpl implements ParameterValidator {
 	}
 
 	/**
+	 * Check if input matches one of the options
+	 * @param input string to be checked
+	 * @param options list of valid strings
+	 * @return true if input matches, false otherwise
+	 */
+	private boolean isValidForOptions(String input, List<Option> options) {
+		boolean valid = false;
+		for (int i = 0; i < options.size(); i++) {
+			if (input.equals(options.get(i).value)) {
+				valid = true;
+			}
+		}
+		return valid;
+	}
+
+	/**
 	 * Check if String matches Pattern 
-	 * @param input String
-	 * @param pattern Regex-Pattern to check String with
-	 * @return
+	 * @param input string to be checked
+	 * @param pattern regex-Pattern to check String with
+	 * @return true if pattern matches, false otherwise
 	 */
 	private boolean isValidForPattern(String input, String pattern) {
 		return Pattern.matches(pattern, input);
@@ -114,11 +146,11 @@ public class ParameterValidatorImpl implements ParameterValidator {
 
 	/**
 	 * Check if input is in range and if it is divisible by step
-	 * @param input check for this number if it is valid
-	 * @param min minimum
-	 * @param max maximum
-	 * @param step stepsize - input has to be divisible by step
-	 * @return
+	 * @param input number to be checked
+	 * @param min minimum of the range
+	 * @param max maximum of the range
+	 * @param step stepsize inside the range
+	 * @return true if conditions fullfilled, false otherwise
 	 */
 	private boolean isValidForNumbers(Double input, Double min, Double max, Double step) {
 		boolean valid = true;
