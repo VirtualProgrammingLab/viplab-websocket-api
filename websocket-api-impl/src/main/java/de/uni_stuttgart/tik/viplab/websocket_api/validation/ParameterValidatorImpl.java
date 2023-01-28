@@ -161,7 +161,8 @@ public class ParameterValidatorImpl implements ParameterValidator {
 			valid &= ((max >= input) ? true : false);
 		}
 		if (step != null) {
-			valid &= (((input - min) % step == 0) ? true : false);
+			double epsilon = (step > 1) ? 0.000001d : 0.000001d * step;
+			valid &= ((((input - min) % step) < epsilon) ? true : false);
 		}
 		return valid;
 	}
