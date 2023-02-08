@@ -75,7 +75,7 @@
     <dependency>
     <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20220320</version>
+      <version>20220924</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -107,7 +107,7 @@
     <dependency>
       <groupId>com.auth0</groupId>
       <artifactId>jwks-rsa</artifactId>
-      <version>0.21.1</version>
+      <version>0.21.3</version>
     </dependency>
     <dependency>
       <groupId>com.github.spullara.mustache.java</groupId>
