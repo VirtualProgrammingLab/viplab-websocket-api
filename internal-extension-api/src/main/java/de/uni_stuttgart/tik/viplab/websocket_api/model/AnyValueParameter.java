@@ -1,6 +1,6 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.model;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public class AnyValueParameter extends Parameter {
 

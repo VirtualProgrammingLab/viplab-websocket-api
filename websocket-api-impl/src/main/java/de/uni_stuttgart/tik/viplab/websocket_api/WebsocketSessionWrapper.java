@@ -4,9 +4,9 @@ import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService.Session;
 
 public class WebsocketSessionWrapper implements Session {
 
-	private final javax.websocket.Session session;
+	private final jakarta.websocket.Session session;
 
-	public WebsocketSessionWrapper(javax.websocket.Session session) {
+	public WebsocketSessionWrapper(jakarta.websocket.Session session) {
 		this.session = session;
 	}
 

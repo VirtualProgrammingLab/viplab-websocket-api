@@ -5,8 +5,8 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import javax.json.bind.annotation.JsonbTypeAdapter;
-import javax.validation.constraints.NotBlank;
+import jakarta.json.bind.annotation.JsonbTypeAdapter;
+import jakarta.validation.constraints.NotBlank;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.jsontransformers.StatusEnumTransformer;
 

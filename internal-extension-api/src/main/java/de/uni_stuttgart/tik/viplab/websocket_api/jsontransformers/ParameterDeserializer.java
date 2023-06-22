@@ -2,13 +2,13 @@ package de.uni_stuttgart.tik.viplab.websocket_api.jsontransformers;
 
 import java.lang.reflect.Type;
 
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbException;
-import javax.json.bind.serializer.DeserializationContext;
-import javax.json.bind.serializer.JsonbDeserializer;
-import javax.json.stream.JsonParser;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbException;
+import jakarta.json.bind.serializer.DeserializationContext;
+import jakarta.json.bind.serializer.JsonbDeserializer;
+import jakarta.json.stream.JsonParser;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.model.AnyValueParameter;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.FixedValueParameter;

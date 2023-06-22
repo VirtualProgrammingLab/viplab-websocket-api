@@ -2,9 +2,9 @@ package de.uni_stuttgart.tik.viplab.websocket_api.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;

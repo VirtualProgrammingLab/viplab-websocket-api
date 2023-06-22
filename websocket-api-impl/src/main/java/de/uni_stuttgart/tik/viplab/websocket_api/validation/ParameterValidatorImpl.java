@@ -5,7 +5,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.json.JSONArray;

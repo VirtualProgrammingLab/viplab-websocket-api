@@ -1,9 +1,9 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.jsontransformers;
 
-import javax.json.Json;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.Json;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
+import jakarta.json.bind.adapter.JsonbAdapter;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.STATUS;
 

@@ -2,26 +2,23 @@ package de.uni_stuttgart.tik.viplab.websocket_api.amqp;
 
 import java.lang.reflect.Type;
 
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbException;
-import javax.json.bind.serializer.DeserializationContext;
-import javax.json.bind.serializer.JsonbDeserializer;
-import javax.json.stream.JsonParser;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.Artifact;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.File;
 import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.Notifications;
-import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.S3File;;
+import de.uni_stuttgart.tik.viplab.websocket_api.model.ComputationResult.S3File;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbException;
+import jakarta.json.bind.serializer.DeserializationContext;
+import jakarta.json.bind.serializer.JsonbDeserializer;
 
 public class ArtifactDeserializer implements JsonbDeserializer<Artifact> {
-
 	private static final Jsonb jsonb = JsonbBuilder.create();
-
 	@Override
-	public Artifact deserialize(JsonParser parser, DeserializationContext ctx, Type rtType) {
-		JsonObject jsonObj = parser.getObject();
+	public Artifact deserialize(jakarta.json.stream.JsonParser jsonParser, DeserializationContext deserializationContext, Type t) {
+		JsonObject jsonObj = jsonParser.getObject();
 		String jsonString = jsonObj.toString();
 		String type = jsonObj.getString("type");
 
@@ -36,5 +33,6 @@ public class ArtifactDeserializer implements JsonbDeserializer<Artifact> {
 			throw new JsonbException("Unknown type: " + type);
 		}
 	}
+
 
 }

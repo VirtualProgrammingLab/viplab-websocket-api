@@ -3,7 +3,7 @@ package de.uni_stuttgart.tik.viplab.websocket_api.transformation;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;

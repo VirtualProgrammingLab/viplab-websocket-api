@@ -1,6 +1,6 @@
 package de.uni_stuttgart.tik.viplab.websocket_api;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 
