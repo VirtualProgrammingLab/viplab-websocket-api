@@ -89,9 +89,9 @@
 						<excludes>
 							<exclude>**/*IntegrationTest</exclude>
 						</excludes>
-						<systemProperties>
+						<systemPropertyVariables>
 							<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-						</systemProperties>
+						</systemPropertyVariables>
 					</configuration>
 				</plugin>
                 <plugin>
