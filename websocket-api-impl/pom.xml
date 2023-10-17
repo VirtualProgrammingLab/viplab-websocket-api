@@ -102,7 +102,7 @@
     <dependency>
       <groupId>com.auth0</groupId>
       <artifactId>jwks-rsa</artifactId>
-      <version>0.22.0</version>
+      <version>0.22.1</version>
     </dependency>
     <dependency>
       <groupId>com.github.spullara.mustache.java</groupId>
@@ -132,13 +132,13 @@
     <dependency>
       <groupId>uk.co.datumedge</groupId>
       <artifactId>hamcrest-json</artifactId>
-      <version>0.2</version>
+      <version>0.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.java-websocket</groupId>
       <artifactId>Java-WebSocket</artifactId>
-      <version>1.5.3</version>
+      <version>1.5.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
