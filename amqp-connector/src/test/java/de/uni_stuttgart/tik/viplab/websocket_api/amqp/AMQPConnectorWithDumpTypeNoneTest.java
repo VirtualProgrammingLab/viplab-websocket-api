@@ -8,24 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import io.smallrye.reactive.messaging.memory.InMemoryConnector;
-import jakarta.enterprise.inject.Any;
-import jakarta.inject.Inject;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.spi.ConfigProviderResolver;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit5.EnableWeld;
@@ -38,13 +22,25 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
 import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService.Session;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationResultMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ErrorMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.transformation.ComputationMerger;
-import io.smallrye.config.SmallRyeConfigProviderResolver;
+import io.smallrye.config.SmallRyeConfig;
+import io.smallrye.config.SmallRyeConfigBuilder;
 import io.smallrye.config.inject.ConfigExtension;
+import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 import io.smallrye.reactive.messaging.providers.MediatorFactory;
 import io.smallrye.reactive.messaging.providers.connectors.ExecutionHolder;
 import io.smallrye.reactive.messaging.providers.connectors.WorkerPoolRegistry;
@@ -56,10 +52,12 @@ import io.smallrye.reactive.messaging.providers.extension.ReactiveMessagingExten
 import io.smallrye.reactive.messaging.providers.impl.ConfiguredChannelFactory;
 import io.smallrye.reactive.messaging.providers.impl.ConnectorFactories;
 import io.smallrye.reactive.messaging.providers.impl.InternalChannelRegistry;
-import io.smallrye.reactive.messaging.providers.metrics.MetricDecorator;
-import io.smallrye.reactive.messaging.providers.metrics.MicrometerDecorator;
 import io.smallrye.reactive.messaging.providers.wiring.Wiring;
-import io.smallrye.reactive.messaging.test.common.config.MapBasedConfig;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 @EnableWeld
 class AMQPConnectorWithDumpTypeNoneTest {
@@ -77,7 +75,7 @@ class AMQPConnectorWithDumpTypeNoneTest {
 
   @BeforeEach
   public void install() {
-    Map<String, Object> conf = new HashMap<>();
+    Map<String, String> conf = new HashMap<>();
     conf.put("mp.messaging.incoming.results.connector",
             InMemoryConnector.CONNECTOR);
     conf.put("mp.messaging.incoming.results.data",
@@ -94,29 +92,17 @@ class AMQPConnectorWithDumpTypeNoneTest {
             AMQPConnector.DumpType.None.toString());
     conf.put("viplab.amqp.dumpdirectory",
             sharedTempDir.toString());
-    installConfig(new MapBasedConfig(conf));
+    installConfig(conf);
   }
 
-  public static void releaseConfig() {
-    SmallRyeConfigProviderResolver.instance()
-            .releaseConfig(ConfigProvider.getConfig(AMQPConnectorWithDumpTypeNoneTest.class.getClassLoader()));
-    clearConfigFile();
-  }
-
-  private static void clearConfigFile() {
-    File out = new File("target/test-classes/META-INF/microprofile-config.properties");
-    if (out.isFile()) {
-      out.delete();
-    }
-  }
-
-  public static void installConfig(MapBasedConfig config) {
-    releaseConfig();
-    if (config != null) {
-      config.write();
-    } else {
-      clearConfigFile();
-    }
+  public void installConfig(Map<String,String> configMap) {
+    SmallRyeConfig config = new SmallRyeConfigBuilder()
+        .withSources(KeyValuesConfigSource.config(configMap))
+        .addDefaultInterceptors()
+        .build();
+    ConfigProviderResolver.instance()
+        .releaseConfig(ConfigProvider.getConfig(AMQPConnectorWithDumpTypeAllTest.class.getClassLoader()));
+    ConfigProviderResolver.instance().registerConfig(config, AMQPConnectorWithDumpTypeAllTest.class.getClassLoader());
   }
 
   @WeldSetup
@@ -280,7 +266,7 @@ class AMQPConnectorWithDumpTypeNoneTest {
 
     verify(logger,
             times(1)).error(eq("Invalid json received: {}"),
-                    any(String.class));
+                    any(UUID.class));
     long fileCount = -1;
     try (Stream<Path> stream = Files.list(sharedTempDir)) {
       fileCount = stream.filter(file -> !Files.isDirectory(file))

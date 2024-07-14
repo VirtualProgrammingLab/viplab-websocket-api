@@ -1,6 +1,7 @@
 package de.uni_stuttgart.tik.viplab.websocket_api.amqp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockingDetails;
@@ -8,36 +9,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import io.smallrye.reactive.messaging.memory.InMemoryConnector;
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.util.AnnotationLiteral;
-import jakarta.inject.Inject;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.config.spi.ConfigProviderResolver;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.spi.ConnectorLiteral;
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldSetup;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -45,15 +25,27 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService;
 import de.uni_stuttgart.tik.viplab.websocket_api.NotificationService.Session;
-import de.uni_stuttgart.tik.viplab.websocket_api.amqp.AMQPConnector.DumpType;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ComputationResultMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.messages.ErrorMessage;
 import de.uni_stuttgart.tik.viplab.websocket_api.transformation.ComputationMerger;
-import io.smallrye.config.SmallRyeConfigProviderResolver;
+import io.smallrye.config.SmallRyeConfig;
+import io.smallrye.config.SmallRyeConfigBuilder;
 import io.smallrye.config.inject.ConfigExtension;
-import io.smallrye.config.inject.ConfigProducer;
+import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 import io.smallrye.reactive.messaging.providers.MediatorFactory;
 import io.smallrye.reactive.messaging.providers.connectors.ExecutionHolder;
 import io.smallrye.reactive.messaging.providers.connectors.WorkerPoolRegistry;
@@ -65,10 +57,12 @@ import io.smallrye.reactive.messaging.providers.extension.ReactiveMessagingExten
 import io.smallrye.reactive.messaging.providers.impl.ConfiguredChannelFactory;
 import io.smallrye.reactive.messaging.providers.impl.ConnectorFactories;
 import io.smallrye.reactive.messaging.providers.impl.InternalChannelRegistry;
-import io.smallrye.reactive.messaging.providers.metrics.MetricDecorator;
-import io.smallrye.reactive.messaging.providers.metrics.MicrometerDecorator;
 import io.smallrye.reactive.messaging.providers.wiring.Wiring;
-import io.smallrye.reactive.messaging.test.common.config.MapBasedConfig;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 @EnableWeld
 class AMQPConnectorWithDumpTypeInvalidTest {
@@ -86,7 +80,7 @@ class AMQPConnectorWithDumpTypeInvalidTest {
 
   @BeforeEach
   public void install() {
-    Map<String, Object> conf = new HashMap<>();
+    Map<String, String> conf = new HashMap<>();
     conf.put("mp.messaging.incoming.results.connector",
             InMemoryConnector.CONNECTOR);
     conf.put("mp.messaging.incoming.results.data",
@@ -103,29 +97,33 @@ class AMQPConnectorWithDumpTypeInvalidTest {
             AMQPConnector.DumpType.Invalid.toString());
     conf.put("viplab.amqp.dumpdirectory",
             sharedTempDir.toString());
-    installConfig(new MapBasedConfig(conf));
+    installConfig(conf);
   }
 
-  public static void releaseConfig() {
-    SmallRyeConfigProviderResolver.instance()
-            .releaseConfig(ConfigProvider.getConfig(AMQPConnectorWithDumpTypeInvalidTest.class.getClassLoader()));
-    clearConfigFile();
-  }
 
-  private static void clearConfigFile() {
-    File out = new File("target/test-classes/META-INF/microprofile-config.properties");
-    if (out.isFile()) {
-      out.delete();
+  @AfterEach
+  public void cleanTempDir() {
+    try {
+      Files.list(sharedTempDir).forEach(path -> {
+        try {
+          Files.deleteIfExists(path);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      });
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  public static void installConfig(MapBasedConfig config) {
-    releaseConfig();
-    if (config != null) {
-      config.write();
-    } else {
-      clearConfigFile();
-    }
+  public void installConfig(Map<String,String> configMap) {
+    SmallRyeConfig config = new SmallRyeConfigBuilder()
+        .withSources(KeyValuesConfigSource.config(configMap))
+        .addDefaultInterceptors()
+        .build();
+    ConfigProviderResolver.instance()
+        .releaseConfig(ConfigProvider.getConfig(AMQPConnectorWithDumpTypeAllTest.class.getClassLoader()));
+    ConfigProviderResolver.instance().registerConfig(config, AMQPConnectorWithDumpTypeAllTest.class.getClassLoader());
   }
 
   @WeldSetup
@@ -257,7 +255,7 @@ class AMQPConnectorWithDumpTypeInvalidTest {
               // TODO add proper testing code for the value of the message
             });
     verify(session).send(Mockito.isA(ErrorMessage.class));
-    List<Path> files = null;
+    List<Path> files;
     try (Stream<Path> stream = Files.list(sharedTempDir)) {
       files = stream.filter(file -> !Files.isDirectory(file))
               .collect(Collectors.toList());
@@ -266,8 +264,7 @@ class AMQPConnectorWithDumpTypeInvalidTest {
             files.size());
     assertEquals(messagePayload,
             Files.readString(files.get(0)));
-    assertEquals(true,
-            Files.deleteIfExists(files.get(0)));
+    assertTrue(Files.deleteIfExists(files.get(0)));
     verify(logger,
             never()).error(any());
     verify(logger,
@@ -275,7 +272,7 @@ class AMQPConnectorWithDumpTypeInvalidTest {
   }
 
   @Test
-  void testValidJSON(AMQPConnector connector) throws NoSuchMethodException, SecurityException, IOException {
+  void testValidJSON(AMQPConnector connector) throws SecurityException, IOException {
     String messagePayload = "{\"akey\":\"asdfasfd\"}";
     Message<String> message = Message.of(messagePayload);
     connector.init();
@@ -284,7 +281,7 @@ class AMQPConnectorWithDumpTypeInvalidTest {
     verify(notificationService,
             never()).notify(null,
                     null);// notify(eq("computation:asdfasfd"),
-    List<Path> files = null;
+    List<Path> files;
     try (Stream<Path> stream = Files.list(sharedTempDir)) {
       files = stream.filter(file -> !Files.isDirectory(file))
               .collect(Collectors.toList());
@@ -293,20 +290,19 @@ class AMQPConnectorWithDumpTypeInvalidTest {
             files.size());
     assertEquals(messagePayload,
             Files.readString(files.get(0)));
-    assertEquals(true,
-            Files.deleteIfExists(files.get(0)));
+    assertTrue(Files.deleteIfExists(files.get(0)));
   }
 
   @Test
-  void testInvalidJSON(AMQPConnector connector) throws NoSuchMethodException, SecurityException, IOException {
+  void testInvalidJSON(AMQPConnector connector) throws SecurityException, IOException {
     String messagePayload = "{\"akeyasdfasfd\"}";
     Message<String> message = Message.of(messagePayload);
     connector.processResults(message);
 
     verify(logger,
             times(1)).error(eq("Invalid json received: {}"),
-                    any(String.class));
-    List<Path> files = null;
+                    any(UUID.class));
+    List<Path> files;
     try (Stream<Path> stream = Files.list(sharedTempDir)) {
       files = stream.filter(file -> !Files.isDirectory(file))
               .collect(Collectors.toList());
@@ -315,8 +311,7 @@ class AMQPConnectorWithDumpTypeInvalidTest {
             files.size());
     assertEquals(messagePayload,
             Files.readString(files.get(0)));
-    assertEquals(true,
-            Files.deleteIfExists(files.get(0)));
+    assertTrue(Files.deleteIfExists(files.get(0)));
   }
 
 }

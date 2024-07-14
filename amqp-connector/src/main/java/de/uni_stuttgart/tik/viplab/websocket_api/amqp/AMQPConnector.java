@@ -66,10 +66,10 @@ public class AMQPConnector implements ViPLabBackendConnector {
 
   @Inject
   @ConfigProperty(name = "viplab.amqp.dumpmessages", defaultValue = "None")
-  private DumpType dumpMessages;
+  DumpType dumpMessages;
   @Inject
   @ConfigProperty(name = "viplab.amqp.dumpdirectory")
-  private Optional<String> dumpDirectoryConfig;
+  Optional<String> dumpDirectoryConfig;
 
   private Jsonb jsonb;
 
@@ -83,7 +83,7 @@ public class AMQPConnector implements ViPLabBackendConnector {
       if (dumpDirectoryConfig.isPresent()) {
         dumpDirectory = Paths.get(dumpDirectoryConfig.get());
         if (!Files.isDirectory(dumpDirectory)) {
-          logger.error("Dumpdirectory {} is not a directory, dumping is being disabled");
+          logger.error("Dumpdirectory {} is not a directory, dumping is being disabled", dumpDirectory.toAbsolutePath());
           dumpMessages = DumpType.None;
         }
       } else {
@@ -99,18 +99,14 @@ public class AMQPConnector implements ViPLabBackendConnector {
             task);
     String computationJson = jsonb.toJson(computation);
     return computations.send(computationJson)
-            .thenApply(v -> {
-              return computation.identifier;
-            });
+            .thenApply(v -> computation.identifier);
   }
 
   @Override
   public CompletionStage<String> prepareComputation(ComputationTemplate template) {
     String templateJson = jsonb.toJson(template);
     return preparations.send(templateJson)
-            .thenApply(v -> {
-              return template.identifier;
-            });
+            .thenApply(v -> template.identifier);
   }
 
   @Incoming("results")
@@ -122,15 +118,13 @@ public class AMQPConnector implements ViPLabBackendConnector {
               .isEmpty()) {
         ComputationResultMessage resultMessage = new ComputationResultMessage(result);
         notificationService.notify("computation:" + result.computation,
-                session -> {
-                  session.send(resultMessage);
-                });
+                session -> session.send(resultMessage));
         if (DumpType.All == dumpMessages) {
           UUID uuid = UUID.randomUUID();
           logger.debug("Send result message(result id:{} for computation {}. Content-id: {})",
                   result.identifier,
                   result.computation,
-                  uuid.toString());
+                  uuid);
           dumpMessage(uuid.toString(),
                   message);
         } else {
@@ -140,15 +134,13 @@ public class AMQPConnector implements ViPLabBackendConnector {
         }
 
       } else {
-        String computationId = null;
+        String computationId;
         if (StringUtils.isNotBlank(result.computation)) {
           ErrorMessage em = new ErrorMessage();
           em.message = message.getPayload();
           // now: report error back using the notification service
           notificationService.notify("computation:" + result.computation,
-                  session -> {
-                    session.send(em);
-                  });
+                  session -> session.send(em));
           computationId = result.computation;
         } else {
           computationId = "__unset__";
@@ -157,7 +149,7 @@ public class AMQPConnector implements ViPLabBackendConnector {
           UUID uuid = UUID.randomUUID();
           logger.error("Error validating result object, but found computationid {}. Content-id: {}",
                   computationId,
-                  uuid.toString());
+                  uuid);
           dumpMessage(uuid.toString(),
                   message);
         } else {
@@ -169,7 +161,7 @@ public class AMQPConnector implements ViPLabBackendConnector {
     } catch (JsonbException ex) {
       UUID uuid = UUID.randomUUID();
       logger.error("Invalid json received: {}",
-              uuid.toString());
+              uuid);
       if (DumpType.Invalid == dumpMessages || DumpType.All == dumpMessages) {
         dumpMessage(uuid.toString(),
                 message);
