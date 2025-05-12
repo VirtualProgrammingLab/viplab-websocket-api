@@ -15,7 +15,7 @@
 		<!-- Workaround for Beta features -->
 		<dependency>
 			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-smallrye-reactive-messaging-amqp</artifactId>
+			<artifactId>quarkus-messaging-amqp</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -70,7 +70,7 @@
 		<dependency>
 			<groupId>org.jboss.weld</groupId>
 			<artifactId>weld-junit5</artifactId>
-			<version>4.0.3.Final</version>
+			<version>5.0.0.Final</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -82,7 +82,7 @@
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>test-common</artifactId>
       <scope>test</scope>
-      <version>4.26.0</version>
+      <version>4.27.0</version>
     </dependency>
 	</dependencies>
 </project>

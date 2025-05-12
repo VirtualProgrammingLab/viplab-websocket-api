@@ -121,8 +121,8 @@ class AMQPConnectorWithDumpTypeAllTest {
         .addDefaultInterceptors()
         .build();
     ConfigProviderResolver.instance()
-        .releaseConfig(ConfigProvider.getConfig(AMQPConnectorWithDumpTypeAllTest.class.getClassLoader()));
-    ConfigProviderResolver.instance().registerConfig(config, AMQPConnectorWithDumpTypeAllTest.class.getClassLoader());
+        .releaseConfig(ConfigProvider.getConfig(Thread.currentThread().getContextClassLoader()));
+    ConfigProviderResolver.instance().registerConfig(config, Thread.currentThread().getContextClassLoader());
   }
 
   @WeldSetup
@@ -206,17 +206,16 @@ class AMQPConnectorWithDumpTypeAllTest {
               // TODO add proper testing code for the value of the message
             });
     verify(session).send(Mockito.isA(ComputationResultMessage.class));
-    List<Path> files = null;
+    List<Path> files;
     try (Stream<Path> stream = Files.list(sharedTempDir)) {
       files = stream.filter(file -> !Files.isDirectory(file))
-              .collect(Collectors.toList());
+              .toList();
     }
     assertEquals(1,
             files.size());
     assertEquals(messagePayload,
             Files.readString(files.get(0)));
-    assertEquals(true,
-            Files.deleteIfExists(files.get(0)));
+    assertTrue(Files.deleteIfExists(files.get(0)));
     verify(logger,
             never()).error(any());
     verify(logger,

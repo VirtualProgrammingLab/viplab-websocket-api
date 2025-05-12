@@ -122,8 +122,8 @@ class AMQPConnectorWithDumpTypeInvalidTest {
         .addDefaultInterceptors()
         .build();
     ConfigProviderResolver.instance()
-        .releaseConfig(ConfigProvider.getConfig(AMQPConnectorWithDumpTypeAllTest.class.getClassLoader()));
-    ConfigProviderResolver.instance().registerConfig(config, AMQPConnectorWithDumpTypeAllTest.class.getClassLoader());
+        .releaseConfig(ConfigProvider.getConfig(Thread.currentThread().getContextClassLoader()));
+    ConfigProviderResolver.instance().registerConfig(config, Thread.currentThread().getContextClassLoader());
   }
 
   @WeldSetup
