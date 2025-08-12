@@ -70,7 +70,7 @@
 		<dependency>
 			<groupId>org.jboss.weld</groupId>
 			<artifactId>weld-junit5</artifactId>
-			<version>5.0.0.Final</version>
+			<version>5.0.1.Final</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -82,7 +82,7 @@
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>test-common</artifactId>
       <scope>test</scope>
-      <version>4.27.0</version>
+      <version>4.28.0</version>
     </dependency>
 	</dependencies>
 </project>
