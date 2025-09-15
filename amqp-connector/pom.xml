@@ -82,7 +82,7 @@
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>test-common</artifactId>
       <scope>test</scope>
-      <version>4.28.0</version>
+      <version>4.30.0</version>
     </dependency>
 	</dependencies>
 </project>
