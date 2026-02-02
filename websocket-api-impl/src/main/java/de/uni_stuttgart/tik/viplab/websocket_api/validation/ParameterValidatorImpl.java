@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import org.eclipse.microprofile.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
 import org.json.JSONArray;
 
 import de.uni_stuttgart.tik.viplab.websocket_api.model.AnyValueParameter;
@@ -21,7 +21,7 @@ public class ParameterValidatorImpl implements ParameterValidator {
 	* Validate Parameters of mode any
 	* Input can be String, Number or Array of Numbers
 	*/
-	@Timed(name = "InputValidation", description = "A measure of how long it takes to perform the validation of the input.")
+	@Timed(value = "InputValidation", description = "A measure of how long it takes to perform the validation of the input.")
 	@Override
 	public boolean isValid(Object input, AnyValueParameter parameter) {
 		boolean valid = true;
@@ -76,7 +76,7 @@ public class ParameterValidatorImpl implements ParameterValidator {
 	* Validate Parameters of mode fixed
 	* Input can be Array or String
 	*/
-	@Timed(name = "InputValidation", description = "A measure of how long it takes to perform the validation of the input.")
+	@Timed(value = "InputValidation", description = "A measure of how long it takes to perform the validation of the input.")
 	@Override
 	public boolean isValid(Object input, FixedValueParameter parameter) {
 		boolean valid = true;

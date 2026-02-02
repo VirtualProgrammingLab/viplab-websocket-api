@@ -6,13 +6,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Gauge;
-import org.eclipse.microprofile.metrics.annotation.Timed;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.annotation.Timed;
 
 import io.quarkus.scheduler.Scheduled;
+import jakarta.inject.Inject;
 
 /**
  * This NotificationService handles WebSocket sessions and make it possible to
@@ -23,13 +25,22 @@ import io.quarkus.scheduler.Scheduled;
 public class NotificationServiceImpl implements NotificationService {
 	private ConcurrentHashMap<String, Set<Session>> subscriptions = new ConcurrentHashMap<>();
 
-	@Gauge(name= "topics-count", unit = MetricUnits.NONE)
+	@Inject
+	MeterRegistry registry;
+
+	@PostConstruct
+	public void init() {
+		Gauge.builder("topics-count", this, NotificationServiceImpl::getTopicCount)
+				.description("Number of subscriptions")
+				.register(registry);
+	}
+
 	public int getTopicCount() {
 		return subscriptions.size();
 	}
 
 	@Scheduled(every = "60s")
-	@Timed(name = "subscriptions-cleanup")
+	@Timed(value = "subscriptions-cleanup")
 	protected void cleanUpSubscriptions() {
 		this.subscriptions.forEach((topic, sessions) -> sessions.stream().filter(session -> !session.isOpen())
 				.forEach(session -> this.unsubscribe(topic, session)));

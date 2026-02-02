@@ -20,7 +20,7 @@ import jakarta.websocket.OnMessage;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 
-import org.eclipse.microprofile.metrics.annotation.Counted;
+import io.micrometer.core.annotation.Counted;
 import org.slf4j.Logger;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
