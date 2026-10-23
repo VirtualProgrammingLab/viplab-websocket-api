@@ -60,6 +60,11 @@
 				<scope>import</scope>
 				<type>pom</type>
 			</dependency>
+			<dependency>
+				<groupId>org.eclipse</groupId>
+				<artifactId>yasson</artifactId>
+				<version>3.0.5</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
